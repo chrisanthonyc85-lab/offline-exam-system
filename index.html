@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline Exam System - Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { darkMode: 'class' }</script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* =====================================================================
+           ACA ADMIN DESIGN SYSTEM — v2.1.5 (Flat Enterprise)
+           Scope: index.html (Admin Portal).
+           Presentation only: no HTML id, data-* attribute or DOM nesting was
+           added, removed, renamed or reordered by this stylesheet.
+           Rules: no gradients, no decorative shadows, flat surfaces, 1px
+           hairlines, one solid accent, high-contrast typography.
+           ===================================================================== */
+
+        :root {
+            --aca-bg: #f8fafc;
+            --aca-surface: #ffffff;
+            --aca-line: #e2e8f0;
+            --aca-line-strong: #cbd5e1;
+            --aca-line-soft: #eef2f7;
+            --aca-head-bg: #f8fafc;
+            --aca-hover: #f8fafc;
+            --aca-text: #0f172a;
+            --aca-text-2: #334155;
+            --aca-muted: #64748b;
+            --aca-muted-2: #94a3b8;
+            --aca-accent: #1d4ed8;
+            --aca-accent-hover: #1e40af;
+            --aca-accent-soft: #eff4ff;
+            --aca-sidebar: #0f172a;
+            --aca-sidebar-line: #1e293b;
+            --aca-sidebar-hover: #1e293b;
+            --aca-focus: rgba(29, 78, 216, 0.22);
+        }
+
+        html.dark {
+            --aca-bg: #0b1220;
+            --aca-surface: #0f172a;
+            --aca-line: #1e293b;
+            --aca-line-strong: #334155;
+            --aca-line-soft: #16233a;
+            --aca-head-bg: #111c2e;
+            --aca-hover: #142034;
+            --aca-text: #e2e8f0;
+            --aca-text-2: #cbd5e1;
+            --aca-muted: #94a3b8;
+            --aca-muted-2: #64748b;
+            --aca-accent: #3b82f6;
+            --aca-accent-hover: #2563eb;
+            --aca-accent-soft: #14243d;
+            --aca-sidebar: #0b1220;
+            --aca-sidebar-line: #1e293b;
+            --aca-sidebar-hover: #1e293b;
+            --aca-focus: rgba(96, 165, 250, 0.28);
+        }
+
+        /* --------------------------------------------------------------- BASE */
+        html body,
+        html body.font-sans {
+            font-family: "Inter", "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            letter-spacing: -0.005em;
+            background-color: var(--aca-bg) !important;
+            color: var(--aca-text-2);
+        }
+
+        /* Flat replacements for every decorative Tailwind elevation utility.
+           Animation/elevation is expressed with borders, never with glow. */
+        #admin-layout .shadow-xs,
+        #admin-layout .shadow-sm,
+        #admin-layout .shadow-md,
+        #admin-layout .shadow-lg,
+        #admin-layout .shadow-xl,
+        #admin-layout .shadow-2xl,
+        #admin-layout .shadow-inner,
+        #admin-layout .drop-shadow-sm,
+        body [id^="modal-"] .shadow-xs,
+        body [id^="modal-"] .shadow-sm,
+        body [id^="modal-"] .shadow-md,
+        body [id^="modal-"] .shadow-lg,
+        body [id^="modal-"] .shadow-xl,
+        body [id^="modal-"] .shadow-2xl,
+        body [id^="modal-"] .shadow-inner,
+        #view-login .shadow-sm,
+        #view-login .shadow-md,
+        #view-login .drop-shadow-sm {
+            box-shadow: none !important;
+        }
+
+        #admin-layout ::selection { background: #dbeafe; color: #0f172a; }
+        html.dark #admin-layout ::selection { background: #1e3a8a; color: #f8fafc; }
+
+        #admin-layout *::-webkit-scrollbar,
+        body [id^="modal-"] *::-webkit-scrollbar { width: 10px; height: 10px; }
+        #admin-layout *::-webkit-scrollbar-track,
+        body [id^="modal-"] *::-webkit-scrollbar-track { background: transparent; }
+        #admin-layout *::-webkit-scrollbar-thumb,
+        body [id^="modal-"] *::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            background-clip: content-box;
+            border: 3px solid transparent;
+            border-radius: 2px;
+        }
+        #admin-layout *::-webkit-scrollbar-thumb:hover,
+        body [id^="modal-"] *::-webkit-scrollbar-thumb:hover { background: #94a3b8; background-clip: content-box; }
+        html.dark #admin-layout *::-webkit-scrollbar-thumb,
+        html.dark body [id^="modal-"] *::-webkit-scrollbar-thumb { background: #334155; background-clip: content-box; }
+
+        #admin-layout button:focus-visible,
+        body [id^="modal-"] button:focus-visible {
+            outline: 2px solid var(--aca-focus);
+            outline-offset: 2px;
+        }
+
+        /* ------------------------------------------------------------- SIDEBAR */
+        /* Flat, single-tone slate panel with a hairline edge. */
+        #admin-layout aside {
+            background-color: var(--aca-sidebar);
+            border-right: 1px solid var(--aca-sidebar-line);
+            box-shadow: none;
+        }
+
+        #admin-layout aside > div:first-child {
+            padding: 1.15rem 1.25rem;
+            border-bottom: 1px solid var(--aca-sidebar-line);
+        }
+        #admin-layout aside > div:first-child h2 {
+            color: #f8fafc;
+            letter-spacing: -0.015em;
+            font-size: 0.9375rem;
+            font-weight: 600;
+        }
+        #admin-layout aside > div:first-child p {
+            color: #94a3b8;
+            letter-spacing: 0.12em;
+            font-size: 0.625rem;
+            font-weight: 600;
+            margin-top: 0.2rem;
+        }
+        /* Brand mark: flat white tile, no elevation. */
+        #admin-layout aside > div:first-child > div:first-child {
+            border-radius: 6px;
+            box-shadow: none;
+        }
+
+        #admin-layout nav {
+            padding: 1rem 0.75rem;
+            gap: 0.125rem;
+        }
+        #admin-layout nav button {
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.8125rem;
+            letter-spacing: -0.003em;
+            padding: 0.6rem 0.75rem;
+            color: #cbd5e1;
+            background-color: transparent;
+            transition: background-color 0.14s ease, color 0.14s ease;
+        }
+        #admin-layout nav button i {
+            font-size: 0.875rem;
+            opacity: 0.7;
+            transition: opacity 0.14s ease;
+        }
+        #admin-layout nav button:hover {
+            background-color: var(--aca-sidebar-hover);
+            color: #f8fafc;
+        }
+        #admin-layout nav button:hover i { opacity: 1; }
+        /* Active state: one solid accent, square-ish corners, no glow. */
+        #admin-layout nav button.bg-blue-600 {
+            background-color: var(--aca-accent);
+            color: #ffffff;
+            font-weight: 600;
+            box-shadow: none;
+        }
+        #admin-layout nav button.bg-blue-600:hover { background-color: var(--aca-accent-hover); }
+        #admin-layout nav button.bg-blue-600 i { opacity: 1; }
+        #admin-layout nav > div {
+            border-color: var(--aca-sidebar-line);
+            margin: 0.75rem 0.25rem;
+        }
+
+        #admin-layout aside > div:last-child { padding: 0.85rem 0.75rem; }
+        #admin-layout aside > div:last-child button {
+            border-radius: 6px;
+            border: 1px solid var(--aca-sidebar-line);
+            background-color: transparent;
+            color: #94a3b8;
+            font-weight: 500;
+            transition: background-color 0.14s ease, color 0.14s ease, border-color 0.14s ease;
+        }
+        #admin-layout aside > div:last-child button:hover {
+            background-color: #7f1d1d;
+            border-color: #7f1d1d;
+            color: #ffffff;
+        }
+
+        /* -------------------------------------------------------------- HEADER */
+        #admin-layout main > header {
+            background-color: var(--aca-surface);
+            border-bottom: 1px solid var(--aca-line);
+            box-shadow: none;
+        }
+        #admin-layout header > div:first-child {
+            font-size: 0.8125rem;
+            color: var(--aca-muted);
+            letter-spacing: -0.003em;
+        }
+        #admin-layout header button,
+        #admin-layout header > div > div:last-child {
+            border-radius: 6px;
+            border-color: var(--aca-line);
+            box-shadow: none;
+        }
+        #admin-layout header button:hover { background-color: var(--aca-hover); }
+        #admin-layout header #live-time { color: var(--aca-text); font-variant-numeric: tabular-nums; }
+
+        /* ------------------------------------------------------- PAGE HEADINGS */
+        #admin-layout h1 {
+            color: var(--aca-text);
+            letter-spacing: -0.022em;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        #admin-layout h1 + p {
+            color: var(--aca-muted);
+            font-size: 0.875rem;
+            line-height: 1.5;
+            margin-top: 0.25rem;
+            letter-spacing: -0.003em;
+        }
+
+        /* --------------------------------------------------------------- CARDS */
+        /* White surface, 1px hairline, 8px radius, zero elevation. */
+        #admin-layout .rounded-xl { border-radius: 8px; }
+        #admin-layout .rounded-xl.border {
+            border-color: var(--aca-line);
+            box-shadow: none;
+        }
+        html.dark #admin-layout .rounded-xl.border { border-color: var(--aca-line); }
+        /* Dark structural panels keep a dark hairline, not the light card edge. */
+        #admin-layout .rounded-xl.bg-slate-900 { border-color: #1e293b; }
+
+        /* Card / toolbar headers: flat surface with a hairline divider. */
+        #admin-layout .rounded-xl > div[class*="bg-slate-50"] {
+            background-color: var(--aca-surface);
+            border-bottom: 1px solid var(--aca-line);
+        }
+        #admin-layout .rounded-xl h3 { color: var(--aca-text); }
+        #admin-layout .rounded-xl > div[class*="bg-slate-50"] h3 {
+            color: var(--aca-text);
+            font-size: 0.8125rem;
+            font-weight: 600;
+            letter-spacing: -0.003em;
+        }
+        #admin-layout .rounded-xl > div[class*="bg-slate-50"] h3 i { color: var(--aca-muted); }
+
+        /* Dashboard stat tiles */
+        #admin-layout .rounded-lg.border.px-5 {
+            border-radius: 8px;
+            border-color: var(--aca-line);
+            background-color: var(--aca-surface);
+            box-shadow: none;
+            padding: 1.25rem 1.5rem;
+            transition: border-color 0.14s ease;
+        }
+        #admin-layout .rounded-lg.border.px-5:hover { border-color: var(--aca-line-strong); }
+        #admin-layout .rounded-lg.border.px-5 p {
+            color: var(--aca-muted);
+            letter-spacing: 0.07em;
+            font-size: 0.6875rem;
+            font-weight: 600;
+        }
+        #admin-layout .rounded-lg.border.px-5 h3 {
+            color: var(--aca-text);
+            font-size: 1.625rem;
+            line-height: 1.2;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            margin-top: 0.35rem;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* -------------------------------------------------------------- TABLES */
+        /* Ledger styling: flat header, hairline rows, quiet hover. */
+        #admin-layout table thead th,
+        body [id^="modal-"] table thead th {
+            background-color: var(--aca-head-bg);
+            color: var(--aca-muted);
+            font-size: 0.6875rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            white-space: nowrap;
+            padding: 0.75rem 1.25rem;
+            border-bottom: 1px solid var(--aca-line);
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        #admin-layout table tbody td,
+        body [id^="modal-"] table tbody td {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--aca-line-soft);
+            vertical-align: middle;
+            color: var(--aca-text-2);
+        }
+        #admin-layout table tbody tr,
+        body [id^="modal-"] table tbody tr {
+            border-top-width: 0;
+            background-color: transparent;
+            transition: background-color 0.12s ease;
+        }
+        #admin-layout table tbody tr:hover { background-color: var(--aca-hover); }
+        body [id^="modal-"] table tbody tr:hover { background-color: var(--aca-hover); }
+        #admin-layout table tbody tr:last-child td { border-bottom: 0; }
+
+        /* Edge inset so rows breathe inside the card shell */
+        #admin-layout table thead th:first-child,
+        body [id^="modal-"] table thead th:first-child { padding-left: 1.5rem; }
+        #admin-layout table thead th:last-child,
+        body [id^="modal-"] table thead th:last-child { padding-right: 1.5rem; }
+        #admin-layout table tbody td:first-child,
+        body [id^="modal-"] table tbody td:first-child { padding-left: 1.5rem; }
+        #admin-layout table tbody td:last-child,
+        body [id^="modal-"] table tbody td:last-child { padding-right: 1.5rem; }
+
+        body [id^="modal-"] table { border-collapse: collapse; }
+
+        /* --------------------------------------------------------- FORM FIELDS */
+        #admin-layout input:not([type="checkbox"]):not([type="radio"]),
+        #admin-layout textarea,
+        body [id^="modal-"] input:not([type="checkbox"]):not([type="radio"]),
+        body [id^="modal-"] textarea {
+            border-radius: 6px;
+            border: 1px solid var(--aca-line-strong);
+            background-color: var(--aca-surface);
+            color: var(--aca-text);
+            box-shadow: none;
+            transition: border-color 0.14s ease, outline-color 0.14s ease;
+        }
+        #admin-layout input:not([type="checkbox"]):not([type="radio"]):focus,
+        #admin-layout textarea:focus,
+        body [id^="modal-"] input:not([type="checkbox"]):not([type="radio"]):focus,
+        body [id^="modal-"] textarea:focus {
+            outline: 2px solid var(--aca-focus);
+            outline-offset: 0;
+            border-color: var(--aca-accent);
+            box-shadow: none;
+        }
+        #admin-layout input::placeholder,
+        body [id^="modal-"] input::placeholder { color: var(--aca-muted-2); }
+
+        /* Filter dropdowns in the toolbars */
+        #admin-layout #quiz-filter-select,
+        #admin-layout #question-quiz-select,
+        #admin-layout #result-filter-select,
+        #admin-layout #result-section-filter,
+        #admin-layout #attendance-quiz-filter,
+        body [id^="modal-"] select {
+            border-radius: 6px;
+            border: 1px solid var(--aca-line-strong);
+            background-color: var(--aca-surface);
+            color: var(--aca-text);
+            box-shadow: none;
+            font-weight: 500;
+            font-size: 0.8125rem;
+        }
+        body [id^="modal-"] select:focus,
+        #admin-layout select:focus {
+            outline: 2px solid var(--aca-focus);
+            outline-offset: 0;
+            border-color: var(--aca-accent);
+        }
+
+        /* ------------------------------------------------------------- BUTTONS */
+        /* Strict hierarchy: outline by default, colour only on hover, one solid
+           primary across the app. No gradients, no glows, no lift. */
+        body .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            padding: 0.5rem 0.875rem;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            background-image: none;
+            font-size: 0.8125rem;
+            line-height: 1.25rem;
+            font-weight: 500;
+            white-space: nowrap;
+            box-shadow: none;
+            transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+        }
+        body .btn i { font-size: 0.8125rem; }
+
+        /* Secondary / standard — white outline that lights up blue on hover. */
+        body .btn-secondary {
+            background-color: #ffffff;
+            border-color: #cbd5e1;
+            color: #334155;
+        }
+        body .btn-secondary:hover {
+            background-color: #eff6ff;
+            border-color: #93c5fd;
+            color: #1d4ed8;
+        }
+
+        /* Destructive — outline that turns red only on hover. */
+        body .btn-danger {
+            background-color: #ffffff;
+            border-color: #cbd5e1;
+            color: #334155;
+        }
+        body .btn-danger:hover {
+            background-color: #fef2f2;
+            border-color: #fca5a5;
+            color: #b91c1c;
+        }
+
+        /* Primary — exactly one solid accent for the whole dashboard. */
+        body .btn-primary {
+            background-color: var(--aca-accent);
+            border-color: var(--aca-accent);
+            color: #ffffff;
+        }
+        body .btn-primary:hover {
+            background-color: var(--aca-accent-hover);
+            border-color: var(--aca-accent-hover);
+        }
+
+        /* Size modifiers. */
+        body .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.625rem; font-weight: 600; border-radius: 4px; letter-spacing: 0.02em; }
+        body .btn-lg { padding: 0.75rem 1.125rem; font-size: 0.9375rem; }
+        body .btn-round { padding: 0; width: 2rem; height: 2rem; border-radius: 9999px; }
+        body .btn-block { width: 100%; }
+
+        /* Disabled: muted outline, never a dull grey block. */
+        body .btn:disabled,
+        body .btn[disabled] {
+            background-color: #ffffff;
+            border-color: #e2e8f0;
+            color: #94a3b8;
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+        body .btn:disabled:hover,
+        body .btn[disabled]:hover {
+            background-color: #ffffff;
+            border-color: #e2e8f0;
+            color: #94a3b8;
+        }
+        body .btn-primary:disabled,
+        body .btn-primary[disabled] {
+            background-color: #e2e8f0;
+            border-color: #e2e8f0;
+            color: #94a3b8;
+        }
+        body .btn-primary:disabled:hover,
+        body .btn-primary[disabled]:hover {
+            background-color: #e2e8f0;
+            border-color: #e2e8f0;
+            color: #94a3b8;
+        }
+
+        /* Dark mode shell for the same hierarchy. */
+        html.dark body .btn-secondary,
+        html.dark body .btn-danger {
+            background-color: #0f172a;
+            border-color: #334155;
+            color: #cbd5e1;
+        }
+        html.dark body .btn-secondary:hover {
+            background-color: #172554;
+            border-color: #3b82f6;
+            color: #93c5fd;
+        }
+        html.dark body .btn-danger:hover {
+            background-color: #450a0a;
+            border-color: #ef4444;
+            color: #fca5a5;
+        }
+        html.dark body .btn:disabled,
+        html.dark body .btn[disabled] {
+            background-color: #0f172a;
+            border-color: #1e293b;
+            color: #64748b;
+            opacity: 0.7;
+        }
+        html.dark body .btn-primary:disabled,
+        html.dark body .btn-primary[disabled] {
+            background-color: #1e293b;
+            border-color: #1e293b;
+            color: #64748b;
+        }
+
+        /* Enterprise accent left-edge for the two network banner cards. */
+        #admin-layout .border-l-blue-700 { border-left: 2px solid var(--aca-accent) !important; }
+        #admin-layout .border-l-amber-600 { border-left: 2px solid #b45309 !important; }
+
+        /* --------------------------------------------------------------- MODALS */
+        /* Flat scrim, no blur, hairline panel edge. */
+        body [id^="modal-"] {
+            background-color: rgba(15, 23, 42, 0.6);
+            -webkit-backdrop-filter: none;
+            backdrop-filter: none;
+        }
+        body [id^="modal-"] > div {
+            border-radius: 10px;
+            border: 1px solid var(--aca-line);
+            background-color: var(--aca-surface);
+            box-shadow: none;
+        }
+        body [id^="modal-"] > div > div:first-child[class*="border-b"] {
+            background-color: var(--aca-surface);
+            border-bottom: 1px solid var(--aca-line);
+        }
+        body [id^="modal-"] h2 {
+            color: var(--aca-text);
+            letter-spacing: -0.015em;
+            font-weight: 600;
+        }
+
+        /* ---------------------------------------------------------------- LOGIN */
+        #view-login {
+            background-color: #0b1220;
+            background-image: none;
+        }
+        #view-login > div {
+            border-radius: 10px;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            box-shadow: none;
+        }
+        #view-login h1 { letter-spacing: -0.02em; font-weight: 700; }
+        #view-login form label {
+            font-size: 0.75rem;
+            letter-spacing: 0.01em;
+            text-transform: none;
+            font-weight: 600;
+        }
+
+        /* ------------------------------------------------------- ACA BRANDING */
+        /* Flat institutional footer: hairline rule, restrained mark, no glow. */
+        #admin-layout main > div.p-8 > div:last-child {
+            margin-top: 4rem;
+            padding-top: 1.75rem;
+            border-top: 1px solid var(--aca-line);
+            opacity: 1;
+            gap: 0.75rem;
+        }
+        #admin-layout main > div.p-8 > div:last-child:hover { opacity: 1; }
+        #admin-layout main > div.p-8 > div:last-child span {
+            font-size: 0.625rem;
+            font-weight: 600;
+            letter-spacing: 0.22em;
+            color: var(--aca-muted);
+        }
+        #admin-layout main > div.p-8 > div:last-child img {
+            width: 1.5rem;
+            height: 1.5rem;
+            opacity: 0.6;
+            filter: invert(1);
+        }
+        html.dark #admin-layout main > div.p-8 > div:last-child img {
+            opacity: 0.45;
+            filter: none;
+        }
+        #admin-layout #app-current-version {
+            font-size: 0.6875rem;
+            letter-spacing: 0.02em;
+            font-weight: 600;
+            border-radius: 4px;
+            background-color: var(--aca-head-bg);
+            color: var(--aca-muted);
+            border: 1px solid var(--aca-line);
+            padding: 0.2rem 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-300 h-screen overflow-hidden flex selection:bg-blue-200 dark:selection:bg-blue-900">
+
+    <!-- LOGIN VIEW -->
+    <div id="view-login" class="fixed inset-0 bg-slate-900 flex items-center justify-center z-[100] transition-opacity duration-300">
+        <div class="bg-white dark:bg-slate-900 rounded-xl w-full max-w-md p-8 border border-slate-200 dark:border-slate-800">
+            <div class="text-center mb-8">
+                <div class="w-24 h-24 mx-auto mb-4 flex items-center justify-center"><img src="logo.png" alt="College Logo" class="w-full h-full object-contain"></div>
+                <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">WELCOME</h1>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Enter your credentials to continue</p>
+            </div>
+            <form id="login-form" onsubmit="event.preventDefault(); handleLogin();" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Username</label>
+                    <input type="text" id="login-username" class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white focus:border-blue-500 outline-none transition-all" placeholder="Enter username" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Password</label>
+                    <div class="relative">
+                        <input type="password" id="login-password" class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white focus:border-blue-500 outline-none transition-all pr-10" placeholder="Enter password" required>
+                        <button type="button" tabindex="-1" onclick="togglePassword('login-password', 'login-eye')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-blue-600"><i id="login-eye" class="fa-solid fa-eye"></i></button>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg btn-block"><i class="fa-solid fa-right-to-bracket mr-2"></i> Login to Dashboard</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN ADMIN LAYOUT -->
+    <div id="admin-layout" class="flex w-full h-full hidden">
+        <aside class="w-64 bg-[#0B1727] dark:bg-[#060B14] flex flex-col h-full relative border-r border-transparent dark:border-slate-800/50 z-50">
+            <div class="p-6 border-b border-slate-800/50 flex items-center gap-3">
+                <div class="w-10 h-10 rounded flex items-center justify-center bg-white p-1 shrink-0"><img src="logo.png" alt="College Logo" class="w-full h-full object-contain"></div>
+                <div><h2 class="font-bold text-white leading-tight">Offline Exam</h2><p class="text-[10px] text-blue-400 font-bold uppercase tracking-wider">Control Panel</p></div>
+            </div>
+            <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-2 relative z-30">
+                <button id="nav-dashboard" onclick="switchView('dashboard')" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-bold bg-blue-600 text-white"><i class="fa-solid fa-chart-pie w-5 text-center"></i> Dashboard</button>
+                <button id="nav-quizzes" onclick="switchView('quizzes')" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-bold text-slate-300 hover:bg-[#132A4A] hover:text-white"><i class="fa-solid fa-file-circle-check w-5 text-center"></i> Manage Quizzes</button>
+                <button id="nav-questions" onclick="switchView('questions')" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-bold text-slate-300 hover:bg-[#132A4A] hover:text-white"><i class="fa-solid fa-layer-group w-5 text-center"></i> Question Bank</button>
+                <button id="nav-students" onclick="switchView('students')" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-bold text-slate-300 hover:bg-[#132A4A] hover:text-white"><i class="fa-solid fa-users w-5 text-center"></i> Students</button>
+                <button id="nav-results" onclick="switchView('results')" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-bold text-slate-300 hover:bg-[#132A4A] hover:text-white"><i class="fa-solid fa-square-poll-vertical w-5 text-center"></i> Results & Grades</button>
+                <button id="nav-attendance" onclick="switchView('attendance')" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-bold text-slate-300 hover:bg-[#132A4A] hover:text-white"><i class="fa-solid fa-clipboard-user w-5 text-center"></i> Attendance</button>
+                <div class="my-4 border-t border-slate-800/50"></div>
+                <button id="nav-settings" onclick="switchView('settings')" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-bold text-slate-300 hover:bg-[#132A4A] hover:text-white"><i class="fa-solid fa-gear w-5 text-center"></i> Settings</button>
+            </nav>
+            <div class="p-4 border-t border-slate-800/50 relative z-30"><button onclick="logoutToLogin()" class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-bold bg-slate-800/50 text-slate-400 hover:bg-red-600 hover:text-white"><i class="fa-solid fa-power-off"></i> Logout</button></div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-1 flex flex-col h-full overflow-hidden relative z-10">
+
+            <header class="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 shrink-0 relative z-20">
+                <div class="flex items-center text-sm font-medium text-slate-500 dark:text-slate-400"><i class="fa-regular fa-calendar mr-2"></i> <span id="live-day"></span>, <span id="live-date"></span></div>
+                <div class="flex items-center gap-3">
+                    <button type="button" onclick="openInstructorModal(false)" class="flex items-center gap-2.5 pl-2 pr-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-left transition-colors" title="Switch instructor profile">
+                        <span class="w-7 h-7 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0"><i class="fa-solid fa-chalkboard-user text-xs"></i></span>
+                        <span class="leading-tight">
+                            <span class="block text-[10px] uppercase tracking-wider font-semibold text-slate-400 dark:text-slate-500">Active Instructor</span>
+                            <span id="header-active-instructor" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 max-w-[180px] truncate">All Instructors</span>
+                        </span>
+                        <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 ml-1"></i>
+                    </button>
+                    <div class="flex items-center gap-2 text-slate-600 dark:text-slate-300 font-medium bg-white dark:bg-slate-900 px-3 py-1.5 rounded-lg text-sm border border-slate-200 dark:border-slate-700"><i class="fa-regular fa-clock text-blue-500"></i> <span id="live-time" class="tabular-nums"></span></div>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-8 relative z-10">
+                <!-- DASHBOARD VIEW -->
+                <div id="view-dashboard" class="space-y-6">
+                    <div><h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Admin Dashboard</h1><p class="text-slate-500 dark:text-slate-400">Welcome back to the Offline Exam System.</p></div>
+                    
+                    <!-- HYBRID DUAL-MODE NETWORK BANNER -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <!-- Mode 1: Local LAN (Offline Lab) -->
+                        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 border-l-blue-700 rounded-xl p-5 flex flex-col justify-between gap-3">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-slate-900 dark:text-slate-100 font-semibold text-base"><i class="fa-solid fa-network-wired mr-2 text-slate-400"></i> Local LAN Link (Offline Mode)</h3>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">For students connected to the same Wi-Fi / Lab router:</p>
+                                </div>
+                                <span class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-[10px] font-semibold px-2 py-0.5 rounded uppercase tracking-wide">Always Active</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="flex-1 bg-slate-50 dark:bg-slate-950 px-4 py-3 rounded-md border border-slate-200 dark:border-slate-800 font-mono font-semibold text-sm md:text-base text-slate-900 dark:text-slate-100 truncate" id="display-server-ip">Loading...</div>
+                                <button type="button" onclick="copyPortalLink('display-server-ip')" class="btn btn-secondary self-stretch" title="Copy LAN Link"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- Mode 2: Cloudflare Global Tunnel (Any Internet / Mobile Data) -->
+                        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 border-l-amber-600 rounded-xl p-5 flex flex-col justify-between gap-3">
+                            <div class="flex items-center justify-between gap-2">
+                                <div>
+                                    <h3 class="text-slate-900 dark:text-slate-100 font-semibold text-base"><i class="fa-solid fa-globe mr-2 text-slate-400"></i> Global Web Link (Cloudflare Tunnel)</h3>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">For mobile data or separate Wi-Fi networks:</p>
+                                </div>
+                                <button id="btn-toggle-tunnel" type="button" onclick="toggleCloudflareTunnel()" class="btn btn-sm btn-secondary shrink-0">
+                                    <i class="fa-solid fa-bolt mr-1"></i> Enable Global Link
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="flex-1 bg-slate-50 dark:bg-slate-950 px-4 py-3 rounded-md border border-slate-200 dark:border-slate-800 font-mono font-semibold text-sm text-slate-600 dark:text-slate-400 truncate" id="display-cloudflare-url">Offline (Click Enable to generate link)</div>
+                                <button type="button" onclick="copyPortalLink('display-cloudflare-url')" class="btn btn-secondary self-stretch" title="Copy Global Link"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3-LAYER ANTI-PROXY PROCTORING SHIELD BAR -->
+                    <div class="bg-slate-900 text-white rounded-xl p-5 border border-slate-800 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                        <!-- Layer 1: Single-Device Token Counter -->
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-11 h-11 rounded-xl bg-blue-500/20 border border-blue-500/30 text-blue-400 flex items-center justify-center text-lg shrink-0">
+                                <i class="fa-solid fa-user-shield"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] font-black uppercase tracking-wider bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded">Layer 1: Token Lock</span>
+                                    <span id="live-connected-badge" class="text-xs font-extrabold text-emerald-400">0 Students Inside</span>
+                                </div>
+                                <p class="text-xs text-slate-400 mt-1">1 device per Student ID. Duplicate logins trigger an alarm.</p>
+                            </div>
+                        </div>
+
+                        <!-- Layer 3: 60-Second Dynamic Rolling PIN (Single-Use per ID) -->
+                        <div class="flex items-center gap-3 bg-slate-800/90 px-4 py-2.5 rounded-xl border border-slate-700 w-full lg:w-auto justify-between lg:justify-start">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] font-black uppercase tracking-wider text-amber-400"><i class="fa-solid fa-key mr-1"></i> Live Rolling PIN</span>
+                                    <span id="rolling-pin-timer" class="text-[10px] font-mono bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded">60s</span>
+                                </div>
+                                <p class="text-[11px] text-slate-400">Single-use per Student ID</p>
+                            </div>
+                            <div id="display-rolling-pin" class="font-mono font-black text-2xl tracking-[0.25em] text-amber-300 bg-slate-950 px-3.5 py-1.5 rounded-lg border border-amber-500/30">----</div>
+                            <button type="button" onclick="cycleDynamicPin()" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-700 transition-colors" title="Generate New PIN Now">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                            </button>
+                        </div>
+
+                        <!-- Layer 2: Gatekeeper Room Lock & Session Reset -->
+                        <div class="flex items-center gap-2 w-full lg:w-auto justify-end">
+                            <button type="button" onclick="resetStudentSessionLocks()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-3.5 py-2.5 rounded-xl font-bold text-xs transition-colors" title="Clear device locks so students who switched phones/PCs can log in again">
+                                <i class="fa-solid fa-unlock-keyhole mr-1"></i> Reset Device Locks
+                            </button>
+                            <button id="btn-gatekeeper-lock" type="button" onclick="toggleGatekeeperLock()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs transition-colors flex items-center gap-2">
+                                <i id="gatekeeper-icon" class="fa-solid fa-door-open"></i>
+                                <span id="gatekeeper-text">Room Open (Click to Lock Entry)</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="bg-white dark:bg-slate-900 px-5 py-4 rounded-lg border border-slate-200 dark:border-slate-800"><p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Students</p><h3 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mt-1 tabular-nums" id="stat-students">0</h3></div>
+                        <div class="bg-white dark:bg-slate-900 px-5 py-4 rounded-lg border border-slate-200 dark:border-slate-800"><p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Active Quizzes</p><h3 class="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-1 tabular-nums" id="stat-quizzes">0</h3></div>
+                        <div class="bg-white dark:bg-slate-900 px-5 py-4 rounded-lg border border-slate-200 dark:border-slate-800"><p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Question Bank</p><h3 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mt-1 tabular-nums" id="stat-questions">0</h3></div>
+                        <div class="bg-white dark:bg-slate-900 px-5 py-4 rounded-lg border border-slate-200 dark:border-slate-800"><p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Results</p><h3 class="text-2xl font-bold text-green-600 dark:text-green-400 mt-1 tabular-nums" id="stat-results">0</h3></div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 mb-6">
+                        <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-slate-700 dark:text-slate-200"><i class="fa-solid fa-chart-pie text-blue-500 mr-2"></i> Overall Pass/Fail Ratio</h3></div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full h-full items-center"><div class="relative h-40"><canvas id="passFailChart"></canvas></div><div id="dashboard-extra-widgets" class="flex flex-col gap-3"></div></div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="space-y-6">
+                            <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden h-fit">
+                                <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-800/30"><h3 class="font-bold text-slate-700 dark:text-slate-300"><i class="fa-solid fa-file-lines text-slate-400 dark:text-slate-500 mr-2"></i> Recent Quizzes</h3></div>
+                                <div class="overflow-x-auto max-h-[300px] overflow-y-auto">
+                                    <table class="w-full text-left border-collapse">
+                                        <thead><tr class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider font-semibold sticky top-0"><th class="px-4 py-2.5 font-semibold border-b border-slate-200 dark:border-slate-800">Title</th><th class="px-4 py-2.5 font-semibold border-b border-slate-200 dark:border-slate-800">Subject</th><th class="px-4 py-2.5 text-center font-semibold border-b border-slate-200 dark:border-slate-800">Items</th></tr></thead>
+                                        <tbody id="dash-recent-quizzes" class="text-sm divide-y divide-slate-100 dark:divide-slate-800"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden h-fit">
+                                <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-800/30"><h3 class="font-bold text-slate-700 dark:text-slate-300"><i class="fa-solid fa-satellite-dish text-blue-500 mr-2"></i> Live Activity</h3></div>
+                                <div class="p-6 space-y-4 max-h-[300px] overflow-y-auto pr-2" id="dash-recent-activity"></div>
+                            </div>
+                        </div>
+                        <div class="space-y-6">
+                            <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col h-fit" id="security-alerts-tile">
+                                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30 flex justify-between items-center shrink-0">
+                                    <h3 class="font-semibold text-slate-900 dark:text-slate-100"><i class="fa-solid fa-shield-halved mr-2 text-red-600"></i> Security Alerts</h3>
+                                    <div class="flex gap-2"><button onclick="exportSecurityAlerts()" class="btn btn-sm btn-secondary uppercase"><i class="fa-solid fa-download mr-1"></i> Save Log</button><button onclick="clearSecurityAlerts()" class="btn btn-sm btn-danger uppercase">Clear All</button></div>
+                                </div>
+                                <div class="p-4 space-y-3 max-h-[300px] overflow-y-auto bg-white dark:bg-transparent pr-2" id="dash-security-alerts"><div class="text-center py-6" id="empty-alerts-msg"><div class="w-12 h-12 rounded-full bg-slate-50 dark:bg-slate-800/50 text-slate-300 dark:text-slate-600 flex items-center justify-center text-xl mx-auto mb-2"><i class="fa-solid fa-shield-halved"></i></div><p class="text-slate-500 dark:text-slate-500 text-sm font-medium">No alerts detected.</p></div></div>
+                            </div>
+                            <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden h-fit">
+                                <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-800/30"><h3 class="font-bold text-slate-700 dark:text-slate-300"><i class="fa-solid fa-trophy text-yellow-500 mr-2"></i> Top Performers</h3></div>
+                                <div class="p-6 space-y-4 max-h-[300px] overflow-y-auto pr-2" id="dash-top-students"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    
+                <!-- QUIZZES VIEW -->
+                <div id="view-quizzes" class="space-y-6 hidden">
+                    <div class="flex items-center justify-between">
+                        <div><h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Manage Quizzes</h1><p class="text-slate-500 dark:text-slate-400">Create, archive, and organize your examinations.</p></div>
+                        <div class="flex flex-wrap gap-2 items-center">
+                            <button onclick="openManageSubjectsModal()" class="btn btn-secondary"><i class="fa-solid fa-book mr-1"></i> Subjects</button>
+                            <button onclick="openCreateQuizModal()" class="btn btn-primary"><i class="fa-solid fa-plus mr-1"></i> Create Quiz</button>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+                        <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex flex-wrap gap-4 items-center justify-between">
+                            <div class="flex items-center gap-2"><i class="fa-solid fa-filter text-slate-400"></i><select id="quiz-filter-select" onchange="filterQuizzes()" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm rounded-lg outline-none p-2"><option value="all">All Subjects</option></select></div>
+                            <div class="relative"><i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i><input type="text" id="quiz-search-input" onkeyup="filterQuizzes()" placeholder="Search quizzes..." class="pl-9 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white rounded-lg text-sm outline-none w-64"></div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead><tr class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider font-semibold"><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800">Title &amp; Section</th><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800">Subject</th><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 text-center">Items</th><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800">Status</th><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 text-center">Actions</th></tr></thead>
+                                <tbody id="quiz-table-body" class="divide-y divide-slate-200 dark:divide-slate-800/50 text-sm text-slate-800 dark:text-slate-200"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QUESTIONS VIEW -->
+                <div id="view-questions" class="space-y-6 hidden h-full flex-col">
+                    <div class="flex items-center justify-between shrink-0">
+                        <div><h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Question Bank</h1><p class="text-slate-500 dark:text-slate-400">Manage questions for your quizzes.</p></div>
+                        <div class="flex gap-2 items-center flex-wrap">
+                            <select id="question-quiz-select" onchange="fetchQuestions()" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm rounded-lg p-2 font-medium outline-none w-64"><option value="" disabled selected>Select a quiz...</option></select>
+                            <button id="btn-add-question" disabled onclick="openQuestionBuilder()" class="btn btn-secondary"><i class="fa-solid fa-plus mr-1"></i> Add</button>
+                            <button id="btn-smart-paste" disabled onclick="openModal('modal-bulk-import')" class="btn btn-secondary"><i class="fa-solid fa-paste mr-1"></i> Paste</button>
+                            <button id="btn-word-import" disabled onclick="openModal('modal-word-import')" class="btn btn-secondary"><i class="fa-solid fa-file-word mr-1"></i> Word Doc</button>
+                            <button id="btn-excel-import" disabled onclick="triggerExcelImport()" class="btn btn-secondary"><i class="fa-solid fa-file-excel mr-1"></i> Excel</button>
+                            <button id="btn-clear-questions" disabled onclick="deleteAllQuestions()" class="btn btn-danger"><i class="fa-solid fa-trash-can mr-1"></i> Clear</button>
+                            <button id="btn-recover-questions" disabled onclick="recoverQuestions()" class="btn btn-secondary"><i class="fa-solid fa-rotate-left mr-1"></i> Recover</button>
+                            <button id="btn-print-exam" disabled onclick="printExam()" class="btn btn-secondary"><i class="fa-solid fa-print mr-1"></i> Print</button>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 flex-1 flex flex-col overflow-hidden">
+                        <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex items-center justify-between shrink-0"><h3 class="font-bold text-slate-700 dark:text-slate-300"><i class="fa-solid fa-list-check mr-2"></i> Loaded Questions</h3><span id="question-count-badge" class="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-transparent dark:border-blue-800/50 text-xs font-bold px-3 py-1 rounded-full">0 Questions</span></div>
+                        <div id="questions-list-container" class="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/50"><div class="p-8 text-center text-slate-500 dark:text-slate-500 font-medium">Select a quiz from the dropdown menu to view or add questions.</div></div>
+                    </div>
+                </div>
+
+                <!-- STUDENTS VIEW -->
+                <div id="view-students" class="space-y-6 hidden">
+                    <div class="flex items-center justify-between">
+                        <div><h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Student Directory</h1><p class="text-slate-500 dark:text-slate-400">Manage registered students. Instructors only see students they registered; Master View shows everyone.</p></div>
+                        <div class="flex flex-wrap gap-2 items-center">
+                            <button onclick="openModal('modal-import-students')" class="btn btn-secondary"><i class="fa-solid fa-file-excel mr-1"></i> Excel Import</button>
+                            <button onclick="openCreateStudentModal()" class="btn btn-primary"><i class="fa-solid fa-user-plus mr-1"></i> Add Student</button>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+                        <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex flex-wrap gap-3 items-center justify-between">
+                            <div class="relative">
+                                <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                                <input type="text" id="search-student" oninput="filterStudentTable()" placeholder="Search by Name or ID..." autocomplete="off" class="pl-9 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white rounded-lg text-sm outline-none w-72">
+                            </div>
+                            <span id="student-count" class="text-xs font-semibold text-slate-500 dark:text-slate-400">0 students</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead><tr class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider font-semibold"><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800">Student ID</th><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800">Full Name</th><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800">Enrolled Subjects</th><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800">Registered By</th><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800">Registered</th><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 text-center">Actions</th></tr></thead>
+                                <tbody id="student-table-body" class="divide-y divide-slate-200 dark:divide-slate-800/50 text-sm text-slate-800 dark:text-slate-200"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RESULTS VIEW -->
+                <div id="view-results" class="space-y-6 hidden flex-col h-full">
+                    <div class="flex items-center justify-between shrink-0">
+                        <div><h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Exam Results</h1><p class="text-slate-500 dark:text-slate-400">View and export student grades.</p></div>
+                        <div class="flex flex-wrap gap-2 items-center">
+                            <button onclick="exportResultsToCSV()" class="btn btn-secondary"><i class="fa-solid fa-download mr-1"></i> Export to CSV</button>
+                            <button onclick="exportResultsPDF()" class="btn btn-secondary"><i class="fa-solid fa-file-pdf mr-1"></i> Export PDF</button>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col flex-1 overflow-hidden">
+                        <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex flex-wrap gap-4 items-center justify-between shrink-0">
+                            <div class="flex items-center gap-4">
+                                <div class="flex items-center gap-2"><i class="fa-solid fa-filter text-slate-400"></i><select id="result-filter-select" onchange="filterResults()" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm rounded-lg p-2 outline-none"><option value="all">All Quizzes</option></select></div>
+                                <div class="flex items-center gap-2"><i class="fa-solid fa-users-viewfinder text-slate-400"></i><select id="result-section-filter" onchange="filterResults()" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm rounded-lg p-2 outline-none"><option value="all">All Sections</option></select></div>
+                            </div>
+                            <div class="relative"><i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i><input type="text" id="result-search-input" onkeyup="filterResults()" placeholder="Search student or ID..." class="pl-9 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white rounded-lg text-sm outline-none w-64"></div>
+                        </div>
+                        <div class="overflow-y-auto flex-1">
+                            <table class="w-full text-left border-collapse">
+                                <thead><tr class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider font-semibold sticky top-0"><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800">Student</th><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800">ID</th><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800">Section</th><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800">Quiz Taken</th><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 text-center">Score</th><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800">Status</th><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800">Date</th><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 text-center">Warnings</th><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 text-center">Actions</th></tr></thead>
+                                <tbody id="results-table-body" class="divide-y divide-slate-200 dark:divide-slate-800/50 text-sm text-slate-800 dark:text-slate-200"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                        
+                <!-- ATTENDANCE VIEW -->
+                <div id="view-attendance" class="space-y-6 hidden flex-col h-full">
+                    <div class="flex items-center justify-between shrink-0">
+                        <div><h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Attendance</h1><p class="text-slate-500 dark:text-slate-400">Automatically recorded when a student submits a quiz.</p></div>
+                        <button onclick="exportAttendancePDF()" class="btn btn-secondary"><i class="fa-solid fa-file-pdf mr-1"></i> Export PDF</button>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col flex-1 overflow-hidden">
+                        <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex flex-wrap gap-4 items-center justify-between shrink-0">
+                            <div class="flex items-center gap-4">
+                                <div class="flex items-center gap-2"><i class="fa-solid fa-filter text-slate-400"></i><select id="attendance-quiz-filter" onchange="filterAttendance()" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm rounded-lg p-2 outline-none"><option value="all">All Quizzes</option></select></div>
+                                <span id="attendance-count" class="text-xs font-semibold text-slate-500 dark:text-slate-400">0 records</span>
+                            </div>
+                            <div class="relative"><i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i><input type="text" id="attendance-search-input" onkeyup="filterAttendance()" placeholder="Search student or ID..." class="pl-9 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white rounded-lg text-sm outline-none w-64"></div>
+                        </div>
+                        <div class="overflow-y-auto flex-1">
+                            <table class="w-full text-left border-collapse">
+                                <thead><tr class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider font-semibold sticky top-0"><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800">Student</th><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800">ID</th><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800">Section</th><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800">Quiz</th><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800">Date Recorded</th><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 text-center">Warnings</th><th class="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800">Status</th></tr></thead>
+                                <tbody id="attendance-table-body" class="divide-y divide-slate-200 dark:divide-slate-800/50 text-sm text-slate-800 dark:text-slate-200"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SETTINGS VIEW -->
+                <div id="view-settings" class="space-y-6 hidden w-full">
+                    <div><h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">System Settings</h1><p class="text-slate-500 dark:text-slate-400">Configure application preferences and administration.</p></div>
+                    <!-- DARK MODE PANEL -->
+                    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden h-fit mb-8">
+                        <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50"><h3 class="font-bold text-slate-700 dark:text-slate-300"><i class="fa-solid fa-moon mr-2 text-indigo-500 dark:text-indigo-400"></i> Appearance</h3></div>
+                        <div class="p-6 flex justify-between items-center bg-white dark:bg-slate-900">
+                            <div><p class="font-bold text-slate-700 dark:text-slate-200">Dark Mode</p><p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Switch to a darker theme for reduced eye strain.</p></div>
+                            <button id="dark-mode-toggle" onclick="toggleDarkMode()" class="w-14 h-8 bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-full relative outline-none"><div id="dark-mode-knob" class="w-6 h-6 bg-white dark:bg-slate-300 rounded-full absolute top-1 left-1 dark:left-7 flex items-center justify-center transition-all shadow-none"><i id="dark-mode-icon-sun" class="fa-solid fa-sun text-yellow-500 text-[10px] dark:hidden"></i><i id="dark-mode-icon-moon" class="fa-solid fa-moon text-indigo-900 text-[10px] hidden dark:block"></i></div></button>
+                        </div>
+                    </div>
+
+                    <!-- SOFTWARE UPDATES PANEL -->
+                    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden h-fit mb-8">
+                        <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex justify-between items-center">
+                            <h3 class="font-bold text-slate-700 dark:text-slate-300"><i class="fa-solid fa-cloud-arrow-down mr-2 text-blue-500"></i> System Updates</h3>
+                            <span id="app-current-version" class="text-xs font-mono font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-2.5 py-1 rounded-full">v2.1.4</span>
+                        </div>
+                        <div class="p-6 flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-white dark:bg-slate-900">
+                            <div>
+                                <p class="font-bold text-slate-700 dark:text-slate-200">Automatic Application Updater</p>
+                                <p id="update-status-inline" class="text-sm text-slate-500 dark:text-slate-400 mt-1">Check for new features and bug fixes online without losing your exam database.</p>
+                            </div>
+                            <button id="btn-check-updates" type="button" onclick="checkForUpdates()" class="btn btn-primary shrink-0">
+                                <i class="fa-solid fa-rotate mr-1.5"></i> Check for Updates
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- MY ACCOUNT -->
+                        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col">
+                            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex items-center justify-between gap-3">
+                                <h3 class="font-bold text-slate-700 dark:text-slate-300"><i class="fa-solid fa-user-shield mr-2 text-blue-500"></i> My Account</h3>
+                                <span id="account-role-badge" class="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300">Instructor</span>
+                            </div>
+                            <div class="p-6 flex-1 space-y-5">
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div class="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30">
+                                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Signed in as</p>
+                                        <p id="account-username" class="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">-</p>
+                                    </div>
+                                    <div class="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30">
+                                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Active profile</p>
+                                        <p id="account-profile" class="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">-</p>
+                                    </div>
+                                </div>
+                                <div class="border-t border-slate-100 dark:border-slate-800 pt-4">
+                                    <p class="font-bold text-slate-700 dark:text-slate-200 text-sm mb-1">Change Password</p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Confirm your current password before setting a new one.</p>
+                                    <div class="space-y-3">
+                                        <input type="password" id="account-old-pass" placeholder="Current password" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm outline-none">
+                                        <input type="password" id="account-new-pass" placeholder="New password" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm outline-none">
+                                        <input type="password" id="account-confirm-pass" placeholder="Confirm new password" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm outline-none">
+                                        <button onclick="changeOwnPassword()" class="btn btn-primary btn-block"><i class="fa-solid fa-key mr-1.5"></i> Update Password</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- MANAGE ADMINS (ADMIN ONLY) -->
+                        <div id="panel-manage-admins" class="admin-only bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col">
+                            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50"><h3 class="font-bold text-slate-700 dark:text-slate-300"><i class="fa-solid fa-shield-halved mr-2 text-slate-400"></i> Manage Admins &amp; Instructors</h3></div>
+                            <div class="p-6 flex-1">
+                                <div class="flex flex-col gap-3 mb-6">
+                                    <input type="text" id="new-admin-user" placeholder="Username (login name)" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm outline-none">
+                                    <input type="text" id="new-admin-profile" list="instructor-name-options" placeholder="Instructor profile name (matches Subject records)" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm outline-none">
+                                    <div class="relative w-full"><input type="password" id="new-admin-pass" placeholder="Password" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm outline-none pr-10"><button type="button" tabindex="-1" onclick="togglePassword('new-admin-pass', 'admin-eye')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-blue-600"><i id="admin-eye" class="fa-solid fa-eye"></i></button></div>
+                                    <button onclick="saveNewAdmin()" class="btn btn-primary btn-block mt-1">Add Instructor Account</button>
+                                    <p class="text-[11px] text-slate-500 dark:text-slate-400"><i class="fa-solid fa-circle-info mr-1"></i> The profile name links this account to an instructor's subjects. Passwords are stored locally so the administrator can view or reset them.</p>
+                                </div>
+                                <div class="border border-slate-200 dark:border-slate-800 rounded-lg overflow-x-auto">
+                                    <table class="w-full min-w-[32rem] text-left border-collapse text-sm">
+                                        <thead><tr class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider font-semibold"><th class="px-4 py-2.5 font-semibold">Instructor / User</th><th class="px-4 py-2.5 font-semibold">Role</th><th class="px-4 py-2.5 font-semibold">Password</th><th class="px-4 py-2.5 text-center font-semibold">Actions</th></tr></thead>
+                                        <tbody id="admins-table-body" class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-800 dark:text-slate-300"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DATA MANAGEMENT (ADMIN ONLY) -->
+                        <div id="panel-data-management" class="admin-only bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden h-fit">
+                            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50"><h3 class="font-bold text-slate-700 dark:text-slate-300"><i class="fa-solid fa-database mr-2 text-blue-500"></i> Data Management</h3></div>
+                            <div class="p-6 space-y-4">
+                                <div class="flex justify-between items-center p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900">
+                                    <div><p class="font-semibold text-slate-900 dark:text-slate-200">Backup Database</p><p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Save a copy of all system data.</p></div>
+                                    <button onclick="triggerBackup()" class="btn btn-secondary">Backup</button>
+                                </div>
+                                <div class="flex justify-between items-center p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900">
+                                    <div><p class="font-semibold text-slate-900 dark:text-slate-200">Restore Database</p><p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Import a previously saved backup file.</p></div>
+                                    <button onclick="triggerRestore()" class="btn btn-secondary">Restore</button>
+                                </div>
+                                <div class="flex justify-between items-center p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900">
+                                    <div><p class="font-semibold text-red-700 dark:text-red-400">End of Semester Reset</p><p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Wipes students and result records.</p></div>
+                                    <button onclick="endOfSemesterReset()" class="btn btn-danger">Reset</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CUSTOM WATERMARK FOOTER -->
+                <div class="w-full flex items-center justify-center gap-3 mt-16 pb-4 pointer-events-none">
+                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Developed by ACA</span>
+                    <img src="ACA_Logo.png" class="w-6 h-6 object-contain" alt="ACA Logo">
+                </div>
+
+            </div> <!-- Closes p-8 flex-1 content area -->
+
+        </main>
+    </div> <!-- Closes Admin Layout -->
+
+    <!-- DESKTOP STUDENT PORTAL -->
+    <div id="view-student-portal" class="fixed inset-0 bg-slate-50 dark:bg-slate-950 hidden z-40 flex-col">
+        <header class="bg-white dark:bg-slate-900 h-16 px-8 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 shrink-0">
+            <div><h1 class="font-black text-slate-800 dark:text-slate-100 text-xl">Student Portal</h1><p class="text-xs text-blue-600 dark:text-blue-400 font-bold"><span id="portal-student-name"></span> | <span id="portal-student-course"></span></p></div>
+            <div class="flex gap-3"><button id="portal-admin-return-btn" onclick="returnToAdminDashboard()" class="hidden btn btn-secondary">Admin Dashboard</button><button onclick="logoutToLogin()" class="text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 px-4 py-2 rounded-lg font-bold text-sm">Logout</button></div>
+        </header>
+        <div class="flex-1 overflow-y-auto p-8">
+            <div class="max-w-7xl mx-auto mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div><h2 class="text-3xl font-black text-slate-800 dark:text-slate-100 mb-2">Available Quizzes</h2><p class="text-slate-500 dark:text-slate-400">Select an exam below to begin.</p></div>
+                <div class="flex items-center gap-2 bg-white dark:bg-slate-900 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-800 shrink-0"><i class="fa-solid fa-filter text-blue-500"></i><select id="desktop-student-subject-filter" onchange="filterDesktopStudentQuizzes()" class="bg-transparent border-none outline-none text-sm font-bold text-slate-700 dark:text-slate-300"><option value="all">All Subjects</option></select></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto" id="desktop-quiz-container"></div>
+        </div>
+    </div>
+
+    <!-- DESKTOP TAKE QUIZ VIEW -->
+    <div id="view-take-quiz" class="fixed inset-0 bg-slate-50 dark:bg-slate-950 hidden z-50 flex-col">
+        <header class="bg-white dark:bg-slate-900 h-16 px-8 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 shrink-0">
+            <div class="flex items-center gap-4">
+                <h1 id="quiz-taking-title" class="font-black text-slate-800 dark:text-slate-100 text-xl">Quiz</h1>
+                <div id="exam-timer-display" class="hidden flex items-center gap-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-4 py-2 rounded-lg font-black text-lg border border-transparent dark:border-red-800/50"><i class="fa-solid fa-stopwatch text-xl animate-pulse"></i><span id="time-remaining-text">00:00</span></div>
+            </div>
+            <button id="admin-return-btn" onclick="returnToAdminDashboard()" class="hidden btn btn-secondary">Cancel Quiz</button>
+        </header>
+        <div class="flex-1 overflow-y-auto p-10 flex justify-center">
+            <div class="bg-white dark:bg-slate-900 p-10 rounded-xl border border-slate-200 dark:border-slate-800 w-full max-w-3xl h-fit">
+                <p id="active-question-count" class="inline-block bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-3 py-1 rounded-full text-xs font-bold uppercase mb-4 border border-transparent dark:border-blue-800/50"></p>
+                <h2 id="active-question-text" class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-8 leading-snug"></h2>
+                <div id="active-options-container" class="space-y-4 mb-8"></div>
+                <div class="flex justify-end"><button id="btn-next-question" type="button" onclick="nextQuestion()" class="hidden btn btn-primary"></button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <div id="modal-add-subject" class="fixed inset-0 bg-slate-900/80 hidden items-center justify-center z-[60] backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-xl w-full max-w-sm p-6 border border-transparent dark:border-slate-800">
+            <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4">Subject Details</h2>
+            <div class="space-y-4">
+                <div><label class="block text-xs font-bold text-slate-700 dark:text-slate-400 mb-1">Subject Name</label><input type="text" id="new-subject-name" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm outline-none"></div>
+                <div><label class="block text-xs font-bold text-slate-700 dark:text-slate-400 mb-1">Instructor Name</label><input type="text" id="new-subject-instructor" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm outline-none"></div>
+            </div>
+            <div class="mt-6 flex justify-end gap-2"><button onclick="closeModal('modal-add-subject')" class="btn btn-secondary">Cancel</button><button onclick="saveNewSubjectUI()" class="btn btn-primary">Save</button></div>
+        </div>
+    </div>
+
+    <div id="modal-manage-subjects" class="fixed inset-0 bg-slate-900/80 hidden items-center justify-center z-[60] backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-xl w-full max-w-2xl flex flex-col max-h-[80vh] border border-transparent dark:border-slate-800">
+            <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50 rounded-t-xl">
+                <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100">Manage Subjects</h2>
+                <div class="space-x-2"><button onclick="openAddSubjectModal()" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus mr-1"></i> Add New</button><button onclick="closeModal('modal-manage-subjects')" class="text-slate-400 hover:text-slate-500"><i class="fa-solid fa-xmark text-xl"></i></button></div>
+            </div>
+            <div class="p-5 overflow-y-auto flex-1">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead><tr class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider font-semibold"><th class="px-4 py-2.5 font-semibold">Subject Name</th><th class="px-4 py-2.5 font-semibold">Instructor</th><th class="px-4 py-2.5 text-center font-semibold">Actions</th></tr></thead>
+                    <tbody id="manage-subjects-tbody" class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-800 dark:text-slate-300"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-create-quiz" class="fixed inset-0 bg-slate-900/80 hidden items-center justify-center z-[60] backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-xl w-full max-w-md p-6 overflow-y-auto max-h-[90vh] border border-transparent dark:border-slate-800">
+            <h2 id="modal-title-text" class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-5"><i class="fa-solid fa-file-circle-plus text-blue-400 mr-2"></i> Create New Quiz</h2>
+            <div class="space-y-4">
+                <div><label class="block text-sm font-bold text-slate-700 dark:text-slate-400 mb-1">Quiz Title</label><input type="text" id="quiz-title" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg outline-none"></div>
+                <div><label class="block text-sm font-bold text-slate-700 dark:text-slate-400 mb-1">Subject</label><select id="quiz-subject" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg outline-none"><option value="" disabled selected>Select a subject...</option></select></div>
+                <div><label class="block text-sm font-bold text-slate-700 dark:text-slate-400 mb-1">Target Section</label><input type="text" id="quiz-target-section" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg outline-none"><p class="text-[10px] text-slate-500 mt-1">Leave as "All Sections" to allow everyone</p></div>
+                <div><label class="block text-sm font-bold text-slate-700 dark:text-slate-400 mb-1">Total Items</label><input type="number" id="quiz-items" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg outline-none" min="1"></div>
+                <div><label class="block text-sm font-bold text-slate-700 dark:text-slate-400 mb-1">Time Limit</label><input type="text" id="quiz-time-limit" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg outline-none"><p class="text-[10px] text-slate-500 mt-1">Total minutes or HH:MM</p></div>
+                <div><label class="block text-sm font-bold text-slate-700 dark:text-slate-400 mb-1">Passing Rate (%)</label><div class="relative"><input type="number" id="quiz-passing-rate" min="1" max="100" value="50" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg outline-none" required><i class="fa-solid fa-percent absolute right-3 top-3 text-slate-400"></i></div></div>
+                <div><label class="block text-sm font-bold text-slate-700 dark:text-slate-400 mb-1">Tab Switch Limit</label><div class="relative"><input type="number" id="quiz-tab-limit" min="0" max="10" value="3" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg outline-none" required><i class="fa-solid fa-shield-halved absolute right-3 top-3 text-slate-400"></i></div></div>
+                <div><label class="block text-sm font-bold text-slate-700 dark:text-slate-400 mb-1">Idle Time Limit (Secs)</label><div class="relative"><input type="number" id="quiz-idle-limit" min="0" value="0" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg outline-none"><i class="fa-regular fa-hourglass-half absolute right-3 top-3 text-slate-400"></i></div></div>
+                <div><label class="block text-sm font-bold text-slate-700 dark:text-slate-400 mb-1">Per-Question Time (Secs)</label><div class="relative"><input type="number" id="quiz-question-time-limit" min="0" value="0" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg outline-none"><i class="fa-solid fa-stopwatch absolute right-3 top-3 text-slate-400"></i></div><p class="text-[10px] text-slate-500 mt-1">Auto-advances when time runs out. 0 = disabled.</p></div>
+                <div class="flex items-start gap-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 rounded-lg p-3"><input type="checkbox" id="quiz-require-camera" class="mt-0.5 h-4 w-4 accent-blue-600 shrink-0"><div><label for="quiz-require-camera" class="block text-sm font-bold text-slate-700 dark:text-slate-300 cursor-pointer">Require Live Camera</label><p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Students must pass a webcam hardware check before entering the PIN. The feed is monitored during the exam.</p></div></div>
+                <div><label class="block text-sm font-bold text-slate-700 dark:text-slate-400 mb-1">Custom Pre-Flight Instructions (Optional)</label><textarea id="quiz-custom-instructions" rows="3" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg outline-none resize-none" placeholder="Example: No calculators. Keep your scratch paper visible on camera. Read each question twice."></textarea><p class="text-[10px] text-slate-500 mt-1">Shown to students on the Pre-Flight Instructions screen before the camera/PIN step.</p></div>
+                <div class="mt-4 border-t border-slate-100 dark:border-slate-800 pt-4"><label class="block text-sm font-bold text-slate-700 dark:text-slate-400 mb-1">Quiz Passcode (Optional)</label><input type="text" id="quiz-passcode" maxlength="4" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg outline-none font-mono tracking-widest text-lg"></div>
+            </div>
+            <div class="mt-6 flex justify-end gap-2"><button onclick="closeModal('modal-create-quiz')" class="btn btn-secondary">Cancel</button><button id="modal-save-btn" onclick="saveNewQuiz()" class="btn btn-primary">Save Quiz</button></div>
+        </div>
+    </div>
+
+    <div id="modal-bulk-import" class="fixed inset-0 bg-slate-900/80 hidden items-center justify-center z-[60] backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-xl w-full max-w-3xl flex flex-col h-[80vh] border border-transparent dark:border-slate-800">
+            <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50 rounded-t-xl shrink-0">
+                <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100"><i class="fa-solid fa-paste text-blue-500 mr-2"></i> Smart Paste Questions</h2>
+                <button onclick="closeModal('modal-bulk-import')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="p-5 flex-1 flex flex-col">
+                <div class="bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 text-xs p-3 rounded-lg mb-3"><p class="font-bold mb-1"><i class="fa-solid fa-wand-magic-sparkles text-blue-600 mr-1"></i> Formats:</p><ul class="list-disc list-inside space-y-0.5 ml-1 text-[11px]"><li><b>MCQ:</b> Question followed by 4 options. Put <b>*</b> before correct option.</li><li><b>T/F:</b> Question followed by True and False. Put <b>*</b> before correct.</li><li><b>Ident:</b> Question followed by <b>*</b> and exact answer.</li><li><b>Match:</b> Question followed by pairs separated by equals sign separated by spaces (CPU = Brain).</li></ul></div>
+                <textarea id="bulk-paste-input" class="w-full flex-1 p-4 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm font-mono focus:border-blue-500 outline-none resize-none" placeholder="Paste your questions here! Use these exact formats:&#10;&#10;--- MULTIPLE CHOICE ---&#10;1. What does HTML stand for?&#10;A) Option&#10;*B) Correct Option&#10;C) Option&#10;D) Option&#10;&#10;--- TRUE/FALSE ---&#10;2. SSDs use moving parts.&#10;True&#10;*False&#10;&#10;--- IDENTIFICATION ---&#10;3. The brain of the computer.&#10;*CPU&#10;&#10;--- MATCHING ---&#10;4. Match the following:&#10;CPU = Brain&#10;GPU = Graphics"></textarea>
+            </div>
+            <div class="p-5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 rounded-b-xl flex justify-end gap-2"><button onclick="closeModal('modal-bulk-import')" class="btn btn-secondary">Cancel</button><button onclick="processBulkImport()" class="btn btn-primary">Process & Save</button></div>
+        </div>
+    </div>
+
+    <div id="modal-word-import" class="fixed inset-0 bg-slate-900/80 hidden items-center justify-center z-[60] backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-xl w-full max-w-md p-6 text-center border border-transparent dark:border-slate-800">
+            <div class="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 text-blue-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-4 border border-blue-100 dark:border-blue-800/50"><i class="fa-solid fa-file-word"></i></div>
+            <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Import Word Document</h2>
+            <p class="text-sm text-slate-500 mb-4">Select a <b>.docx</b> file containing your formatted questions. Correct answers may be marked with an <b>*</b> asterisk, <b class="text-red-500">red text</b>, or a <span class="bg-yellow-200 text-slate-800 px-1 rounded font-bold">highlight</span>.</p>
+            <div class="flex justify-center gap-3"><button onclick="closeModal('modal-word-import')" class="btn btn-secondary">Cancel</button><button onclick="triggerWordImport()" class="btn btn-primary">Select .docx File</button></div>
+        </div>
+    </div>
+
+    <div id="modal-question-builder" class="fixed inset-0 bg-slate-900/80 hidden items-center justify-center z-[60] backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-xl w-full max-w-2xl p-6 max-h-[90vh] flex flex-col border border-transparent dark:border-slate-800">
+            <div class="flex justify-between items-center mb-4 shrink-0"><h2 id="builder-title" class="text-lg font-bold text-slate-800 dark:text-slate-100"><i class="fa-solid fa-pen-ruler text-blue-500 mr-2"></i> Question Builder</h2><button onclick="closeModal('modal-question-builder')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button></div>
+            <input type="hidden" id="builder-q-id">
+            <div class="overflow-y-auto flex-1 pr-2 space-y-5">
+                <div class="bg-blue-50 dark:bg-blue-900/10 p-3 rounded-lg"><label class="block text-xs font-black text-blue-800 dark:text-blue-400 mb-1 uppercase tracking-wide">Question Type</label><select id="builder-q-type" onchange="toggleBuilderFields()" class="w-full px-3 py-2 border border-blue-200 dark:border-blue-800/50 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 rounded-lg text-sm outline-none font-bold"><option value="mcq">Multiple Choice</option><option value="tf">True or False</option><option value="ident">Identification</option><option value="match">Matching Type</option></select></div>
+                <div><label class="block text-xs font-bold text-slate-700 dark:text-slate-400 mb-1" id="label-q-text">Question Text</label><textarea id="builder-q-text" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm outline-none" rows="2"></textarea></div>
+                
+                <div id="fields-mcq" class="space-y-4 builder-section"><div class="grid grid-cols-2 gap-4"><div><label class="block text-xs font-bold text-slate-700 dark:text-slate-400 mb-1">Option A</label><input type="text" id="builder-mcq-a" class="w-full px-3 py-1.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm outline-none"></div><div><label class="block text-xs font-bold text-slate-700 dark:text-slate-400 mb-1">Option B</label><input type="text" id="builder-mcq-b" class="w-full px-3 py-1.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm outline-none"></div><div><label class="block text-xs font-bold text-slate-700 dark:text-slate-400 mb-1">Option C</label><input type="text" id="builder-mcq-c" class="w-full px-3 py-1.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm outline-none"></div><div><label class="block text-xs font-bold text-slate-700 dark:text-slate-400 mb-1">Option D</label><input type="text" id="builder-mcq-d" class="w-full px-3 py-1.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm outline-none"></div></div><div class="bg-green-50 dark:bg-green-900/10 p-3 rounded border border-green-100 dark:border-green-900/30"><label class="block text-xs font-black text-green-800 dark:text-green-500 mb-1">Correct Answer</label><select id="builder-mcq-correct" class="w-full px-3 py-2 border border-green-200 dark:border-green-800/50 bg-white dark:bg-slate-950 text-green-700 dark:text-green-400 rounded text-sm font-bold outline-none"><option value="A">Option A</option><option value="B">Option B</option><option value="C">Option C</option><option value="D">Option D</option></select></div></div>
+                <div id="fields-tf" class="space-y-4 builder-section hidden"><div class="bg-green-50 dark:bg-green-900/10 p-3 rounded"><label class="block text-xs font-black text-green-800 dark:text-green-500 mb-1">Correct Answer</label><select id="builder-tf-correct" class="w-full px-3 py-2 border border-green-200 dark:border-green-800/50 bg-white dark:bg-slate-950 text-green-700 dark:text-green-400 rounded text-sm font-bold outline-none"><option value="True">True</option><option value="False">False</option></select></div></div>
+                <div id="fields-ident" class="space-y-4 builder-section hidden"><div class="bg-green-50 dark:bg-green-900/10 p-3 rounded"><label class="block text-xs font-black text-green-800 dark:text-green-500 mb-1">Exact Answer</label><input type="text" id="builder-ident-correct" class="w-full px-3 py-2 border border-green-200 dark:border-green-800/50 bg-white dark:bg-slate-950 text-green-700 dark:text-green-400 rounded text-sm outline-none font-bold"></div></div>
+                <div id="fields-match" class="space-y-4 builder-section hidden"><div class="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg"><input type="text" id="match-p1" class="px-2 py-1.5 text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded" placeholder="1. Item"><input type="text" id="match-a1" class="px-2 py-1.5 text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded" placeholder="Match"><input type="text" id="match-p2" class="px-2 py-1.5 text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded" placeholder="2. Item"><input type="text" id="match-a2" class="px-2 py-1.5 text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded" placeholder="Match"><input type="text" id="match-p3" class="px-2 py-1.5 text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded" placeholder="3. Item"><input type="text" id="match-a3" class="px-2 py-1.5 text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded" placeholder="Match"><input type="text" id="match-p4" class="px-2 py-1.5 text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded" placeholder="4. Item"><input type="text" id="match-a4" class="px-2 py-1.5 text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded" placeholder="Match"></div></div>
+            </div>
+            <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2 shrink-0"><button onclick="closeModal('modal-question-builder')" class="btn btn-secondary">Cancel</button><button onclick="saveQuestionBuilder()" class="btn btn-primary">Save Question</button></div>
+        </div>
+    </div>
+
+    <div id="modal-create-student" class="fixed inset-0 bg-slate-900/80 hidden items-center justify-center z-[60] backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-xl w-full max-w-sm p-6 border border-transparent dark:border-slate-800">
+            <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4">Register Student</h2>
+            <div class="space-y-4">
+                <div><label class="block text-xs font-bold text-slate-700 dark:text-slate-400 mb-1">Student ID</label><input type="text" id="reg-student-id" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm outline-none"></div>
+                <div><label class="block text-xs font-bold text-slate-700 dark:text-slate-400 mb-1">Full Name</label><input type="text" id="reg-student-name" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm outline-none"></div>
+                <div><label class="block text-xs font-bold text-slate-700 dark:text-slate-400 mb-1">Course & Section</label><input type="text" id="reg-student-course" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm outline-none"></div>
+                <div id="reg-student-registrar-wrap"><label class="block text-xs font-bold text-slate-700 dark:text-slate-400 mb-1">Registered By</label><select id="reg-student-registrar" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm outline-none"></select></div>
+            </div>
+            <div class="mt-6 flex justify-end gap-2"><button onclick="closeModal('modal-create-student')" class="btn btn-secondary">Cancel</button><button onclick="saveNewStudent()" class="btn btn-primary">Save</button></div>
+        </div>
+    </div>
+
+    <div id="modal-edit-student" class="fixed inset-0 bg-slate-900/80 hidden items-center justify-center z-[60] backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-xl w-full max-w-sm p-6 border border-transparent dark:border-slate-800">
+            <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4">Edit Student</h2>
+            <input type="hidden" id="edit-student-db-id">
+            <div class="space-y-4">
+                <div><label class="block text-xs font-bold text-slate-700 dark:text-slate-400 mb-1">Student ID</label><input type="text" id="edit-student-id-input" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm outline-none"></div>
+                <div><label class="block text-xs font-bold text-slate-700 dark:text-slate-400 mb-1">Full Name</label><input type="text" id="edit-student-name-input" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm outline-none"></div>
+                <div><label class="block text-xs font-bold text-slate-700 dark:text-slate-400 mb-1">Course & Section</label><input type="text" id="edit-student-course-input" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm outline-none"></div>
+                <div id="edit-student-registrar-wrap"><label class="block text-xs font-bold text-slate-700 dark:text-slate-400 mb-1">Registered By</label><select id="edit-student-registrar" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm outline-none"></select></div>
+            </div>
+            <div class="mt-6 flex justify-end gap-2"><button onclick="closeModal('modal-edit-student')" class="btn btn-secondary">Cancel</button><button onclick="saveEditStudent()" class="btn btn-primary">Update</button></div>
+        </div>
+    </div>
+
+    <div id="modal-import-students" class="fixed inset-0 bg-slate-900/80 hidden items-center justify-center z-[60] backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-xl w-full max-w-md p-6 text-center border border-transparent dark:border-slate-800">
+            <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Import Master Roster</h2>
+            <p class="text-sm text-slate-500 mb-4">Select an <b>.xlsx</b> attendance file.</p>
+            <div class="flex justify-center gap-3"><button onclick="closeModal('modal-import-students')" class="btn btn-secondary">Cancel</button><button onclick="importStudentsCSV()" class="btn btn-primary">Select Excel</button></div>
+        </div>
+    </div>
+
+    <!-- INSTRUCTOR PROFILE SELECTOR -->
+    <div id="modal-select-instructor" class="fixed inset-0 bg-slate-950/70 hidden items-center justify-center z-[95] p-4 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-xl w-full max-w-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-start justify-between gap-3">
+                <div class="flex items-start gap-3">
+                    <span class="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0"><i class="fa-solid fa-chalkboard-user"></i></span>
+                    <div>
+                        <h2 class="text-base font-semibold text-slate-800 dark:text-slate-100">Select Instructor</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Choose a profile to scope subjects, quizzes, results, and dashboard data to that instructor.</p>
+                    </div>
+                </div>
+                <button id="instructor-modal-close" type="button" onclick="closeModal('modal-select-instructor')" class="hidden text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 shrink-0" title="Close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="instructor-list" class="p-3 max-h-[55vh] overflow-y-auto space-y-1"></div>
+            <div class="px-5 py-3 bg-slate-50 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800">
+                <p class="text-[11px] text-slate-500 dark:text-slate-400"><i class="fa-solid fa-circle-info mr-1"></i> Instructor names come from Subject records and registered instructor accounts. Switching to another instructor requires that instructor's password.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- INSTRUCTOR ACCESS PASSWORD PROMPT -->
+    <div id="modal-instructor-access" class="fixed inset-0 bg-slate-950/70 hidden items-center justify-center z-[96] p-4 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-xl w-full max-w-sm border border-slate-200 dark:border-slate-800 p-6">
+            <div class="flex items-start gap-3 mb-4">
+                <span class="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0"><i class="fa-solid fa-lock"></i></span>
+                <div>
+                    <h2 class="text-base font-semibold text-slate-800 dark:text-slate-100">Unlock Instructor Data</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Enter the password for <span id="instructor-access-target-name" class="font-semibold text-slate-700 dark:text-slate-200">this instructor</span>.</p>
+                </div>
+            </div>
+            <input type="password" id="instructor-access-password" placeholder="Instructor password" onkeydown="if(event.key==='Enter'){submitInstructorAccess();}" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm outline-none">
+            <p id="instructor-access-error" class="hidden mt-2 text-xs font-semibold text-red-600 dark:text-red-400"></p>
+            <div class="mt-5 flex justify-end gap-2">
+                <button type="button" onclick="cancelInstructorAccess()" class="btn btn-secondary">Cancel</button>
+                <button type="button" onclick="submitInstructorAccess()" class="btn btn-primary">Unlock</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT ACCOUNT -->
+    <div id="modal-edit-admin" class="fixed inset-0 bg-slate-900/80 hidden items-center justify-center z-[97] backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-xl w-full max-w-sm p-6 border border-transparent dark:border-slate-800">
+            <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4">Edit Account</h2>
+            <input type="hidden" id="edit-admin-id">
+            <div class="space-y-4">
+                <div><label class="block text-xs font-bold text-slate-700 dark:text-slate-400 mb-1">Instructor Profile Name</label><input type="text" id="edit-admin-profile" list="instructor-name-options" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm outline-none"></div>
+                <div><label class="block text-xs font-bold text-slate-700 dark:text-slate-400 mb-1">Username</label><input type="text" id="edit-admin-username" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm outline-none"></div>
+                <div><label class="block text-xs font-bold text-slate-700 dark:text-slate-400 mb-1">New Password <span class="font-normal text-slate-400">(leave blank to keep current)</span></label><input type="text" id="edit-admin-password" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm outline-none"></div>
+            </div>
+            <div class="mt-6 flex justify-end gap-2"><button onclick="closeModal('modal-edit-admin')" class="btn btn-secondary">Cancel</button><button onclick="saveEditAdmin()" class="btn btn-primary">Save Changes</button></div>
+        </div>
+    </div>
+
+    <datalist id="instructor-name-options"></datalist>
+
+    <!-- Alert Modals -->
+    <div id="modal-alert" class="fixed inset-0 bg-slate-900/80 hidden items-center justify-center z-[80] backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-xl w-full max-w-sm p-6 text-center border dark:border-slate-800">
+            <div id="alert-icon-container" class="w-16 h-16 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"><i id="alert-icon" class="fa-solid fa-circle-info"></i></div>
+            <h2 id="alert-title" class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Notification</h2>
+            <p id="alert-message" class="text-sm text-slate-500 dark:text-slate-400 mb-6">Message.</p>
+            <button onclick="closeModal('modal-alert')" id="alert-btn" class="btn btn-primary btn-block">OK</button>
+        </div>
+    </div>
+
+    <div id="modal-confirm" class="fixed inset-0 bg-slate-900/80 hidden items-center justify-center z-[70] backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-xl w-full max-w-sm p-6 text-center border dark:border-slate-800">
+            <div class="w-16 h-16 bg-red-50 dark:bg-red-900/20 text-red-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Are you sure?</h2>
+            <p id="confirm-message" class="text-sm text-slate-500 dark:text-slate-400 mb-6">Confirm action.</p>
+            <div class="flex items-center justify-center gap-2 mb-6 text-sm text-slate-600 bg-slate-50 dark:bg-slate-950 py-2 rounded-lg"><input type="checkbox" id="dont-ask-again" class="w-4 h-4 rounded bg-white dark:bg-slate-900"><label for="dont-ask-again">Don't ask me again</label></div>
+            <div class="flex justify-center gap-3"><button onclick="closeConfirmModal(false)" class="btn btn-secondary">Cancel</button><button onclick="closeConfirmModal(true)" class="btn btn-danger">Confirm</button></div>
+        </div>
+    </div>
+
+    <!-- ITEM ANALYSIS MODAL -->
+    <div id="modal-item-analysis" class="fixed inset-0 bg-slate-900/80 hidden items-center justify-center z-[70] p-4 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden border border-slate-200 dark:border-slate-800">
+            <div class="bg-slate-50 dark:bg-slate-900/80 px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center shrink-0">
+                <div>
+                    <h2 class="text-xl font-black text-slate-800 dark:text-white"><i class="fa-solid fa-clipboard-user text-blue-500 mr-2"></i> Item Analysis</h2>
+                    <p class="text-xs font-bold text-slate-500 dark:text-slate-400 mt-0.5">
+                        <span id="analysis-student-name">Student</span> • <span id="analysis-quiz-title" class="text-blue-600 dark:text-blue-400">Quiz</span>
+                    </p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button type="button" onclick="openEditScore(activeAnalysisResultId)" class="btn btn-sm btn-secondary"><i class="fa-solid fa-pen-to-square mr-1"></i>Edit Score</button>
+                    <div class="text-right">
+                        <p class="text-[10px] text-slate-400 font-bold uppercase">Final Score</p>
+                        <p id="analysis-score" class="text-xl font-black text-slate-800 dark:text-white leading-none">0 / 0</p>
+                    </div>
+                    <button onclick="closeModal('modal-item-analysis')" class="btn btn-secondary btn-round">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-6">
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-[10px] uppercase text-slate-500">
+                                <th class="px-4 py-3 font-black text-center w-12">#</th>
+                                <th class="px-4 py-3 font-black">Question</th>
+                                <th class="px-4 py-3 font-black text-center w-24">Student</th>
+                                <th class="px-4 py-3 font-black text-center w-24">Correct</th>
+                                <th class="px-4 py-3 font-black text-center w-16">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="analysis-table-body" class="text-sm text-slate-800 dark:text-slate-300"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- EDIT SCORE MODAL -->
+    <div id="modal-edit-score" class="fixed inset-0 bg-slate-900/80 hidden items-center justify-center z-[75] p-4 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-xl w-full max-w-md p-6 border border-transparent dark:border-slate-800">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-11 h-11 bg-amber-50 dark:bg-amber-900/20 text-amber-500 rounded-full flex items-center justify-center text-xl border border-amber-100 dark:border-amber-800/50"><i class="fa-solid fa-pen-to-square"></i></div>
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100">Edit Student Score</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400"><span id="edit-score-student" class="font-bold"></span> • <span id="edit-score-quiz"></span></p>
+                </div>
+            </div>
+            <input type="hidden" id="edit-score-result-id">
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Final Score</label>
+            <div class="flex items-center gap-3">
+                <input type="number" id="edit-score-input" min="0" step="0.01" class="w-32 px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-white rounded-lg text-sm font-bold outline-none focus:border-amber-500">
+                <span class="text-sm font-bold text-slate-500 dark:text-slate-400">/ <span id="edit-score-total">0</span> items</span>
+            </div>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-2"><i class="fa-solid fa-circle-info text-amber-500 mr-1"></i>Partial points are allowed (e.g., 7.5). Passed/Failed status is recalculated automatically.</p>
+            <div class="mt-5 flex justify-end gap-2">
+                <button onclick="closeModal('modal-edit-score')" class="btn btn-secondary">Cancel</button>
+                <button onclick="saveEditedScore()" class="btn btn-primary">Save Score</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- APP UPDATE PROGRESS MODAL -->
+    <div id="modal-app-update" class="fixed inset-0 bg-slate-900/80 hidden items-center justify-center z-[90] p-4 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-xl w-full max-w-md p-6 text-center border border-slate-200 dark:border-slate-800">
+            <div class="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center text-3xl mx-auto mb-4 border border-blue-100 dark:border-blue-800/50">
+                <i id="update-modal-icon" class="fa-solid fa-cloud-arrow-down"></i>
+            </div>
+            <h2 id="update-modal-title" class="text-xl font-black text-slate-800 dark:text-slate-100 mb-1">Update Available!</h2>
+            <p id="update-modal-message" class="text-sm text-slate-500 dark:text-slate-400 mb-5">A new version of the Offline Exam System is ready.</p>
+
+            <!-- Download Progress Bar Container -->
+            <div id="update-progress-container" class="hidden mb-6 text-left">
+                <div class="flex justify-between text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">
+                    <span id="update-progress-status">Downloading update...</span>
+                    <span id="update-progress-percent">0%</span>
+                </div>
+                <div class="w-full h-3 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div id="update-progress-bar" class="h-full bg-blue-600 transition-all duration-200" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="flex justify-center gap-3">
+                <button id="btn-skip-update" type="button" onclick="skipAppUpdate()" class="btn btn-secondary btn-block">Skip Update</button>
+                <button id="btn-download-update" type="button" onclick="downloadAppUpdate()" class="btn btn-primary btn-block">Download Now</button>
+                <button id="btn-install-update" type="button" onclick="installAppUpdate()" class="hidden btn btn-primary btn-block"><i class="fa-solid fa-power-off mr-1.5"></i> Restart & Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DARK MODE SCRIPT -->
+    <script>
+        function applyTheme(isDark) {
+            const iconSun = document.getElementById('dark-mode-icon-sun');
+            const iconMoon = document.getElementById('dark-mode-icon-moon');
+            const knob = document.getElementById('dark-mode-knob');
+            if (isDark) { document.documentElement.classList.add('dark'); localStorage.setItem('theme', 'dark'); if (knob) knob.classList.replace('left-1', 'left-7'); if (iconSun && iconMoon) { iconSun.classList.add('hidden'); iconMoon.classList.remove('hidden'); } } 
+            else { document.documentElement.classList.remove('dark'); localStorage.setItem('theme', 'light'); if (knob) knob.classList.replace('left-7', 'left-1'); if (iconSun && iconMoon) { iconSun.classList.remove('hidden'); iconMoon.classList.add('hidden'); } }
+        }
+        function toggleDarkMode() { applyTheme(!document.documentElement.classList.contains('dark')); }
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) { applyTheme(true); } else { applyTheme(false); }
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>

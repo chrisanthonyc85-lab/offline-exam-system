@@ -1,0 +1,2226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portal - Web Access</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+    <script defer src="face-api.min.js" onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js'"></script>
+    <style>
+        * {
+            -webkit-user-select: none !important;
+            user-select: none !important;
+            -webkit-touch-callout: none !important;
+        }
+        input, textarea {
+            -webkit-user-select: text !important;
+            user-select: text !important;
+        }
+        /* Batch 4: Dynamic Watermark */
+        .watermark-tile {
+            position: absolute;
+            font-size: 12px;
+            font-weight: 700;
+            color: rgba(15, 23, 42, 0.10);
+            white-space: nowrap;
+            letter-spacing: 0.08em;
+            transform: rotate(-24deg);
+            pointer-events: none;
+            animation: wmDrift 18s ease-in-out infinite alternate;
+        }
+        @keyframes wmDrift {
+            from { transform: rotate(-24deg) translate3d(0, 0, 0); }
+            to { transform: rotate(-24deg) translate3d(18px, -12px, 0); }
+        }
+
+        /* ===== Modern portal visual refresh (presentation only) ===== */
+        :root {
+            --portal-ink: #0f172a;
+            --portal-muted: #64748b;
+            --portal-brand: #2563eb;
+            --portal-brand-dark: #1d4ed8;
+            --portal-line: #e2e8f0;
+            --portal-ring: rgba(37, 99, 235, 0.18);
+        }
+        html {
+            font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+        }
+        body {
+            background:
+                radial-gradient(circle at 12% -10%, rgba(37, 99, 235, 0.08), transparent 34%),
+                radial-gradient(circle at 92% 0%, rgba(14, 165, 233, 0.06), transparent 30%),
+                #f8fafc;
+        }
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border: 2px solid #f8fafc; border-radius: 999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Login */
+        #web-view-login {
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 18% 18%, rgba(37, 99, 235, 0.30), transparent 42%),
+                radial-gradient(circle at 84% 82%, rgba(14, 165, 233, 0.20), transparent 38%),
+                linear-gradient(145deg, #08111f 0%, #0b1727 55%, #0d1f36 100%);
+        }
+        #web-view-login::before,
+        #web-view-login::after {
+            content: '';
+            position: absolute;
+            border-radius: 999px;
+            pointer-events: none;
+            filter: blur(2px);
+        }
+        #web-view-login::before {
+            width: 26rem;
+            height: 26rem;
+            top: -9rem;
+            right: -6rem;
+            border: 1px solid rgba(148, 197, 255, 0.16);
+            box-shadow: 0 0 0 3.5rem rgba(37, 99, 235, 0.04), 0 0 0 7rem rgba(37, 99, 235, 0.025);
+        }
+        #web-view-login::after {
+            width: 18rem;
+            height: 18rem;
+            bottom: -7rem;
+            left: -5rem;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.12), transparent 68%);
+        }
+        #web-view-login > div {
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(255, 255, 255, 0.85);
+            border-radius: 1.5rem;
+            box-shadow: 0 32px 80px -28px rgba(2, 8, 23, 0.85), 0 2px 0 rgba(255, 255, 255, 0.7) inset;
+        }
+        #web-view-login h2 { letter-spacing: -0.03em; }
+        #web-student-id {
+            border-color: #dbe3ee;
+            background: #f8fafc;
+            transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+        }
+        #web-student-id:focus {
+            background: #ffffff;
+            border-color: var(--portal-brand);
+            box-shadow: 0 0 0 4px var(--portal-ring);
+        }
+
+        /* Dashboard shell */
+        #web-view-dashboard > div:first-child {
+            background: rgba(255, 255, 255, 0.86);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+        #web-view-dashboard h2,
+        #web-take-quiz h2 { letter-spacing: -0.025em; }
+        .web-quiz-card {
+            border-radius: 1rem;
+            transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 30px -24px rgba(15, 23, 42, 0.35);
+        }
+        .web-quiz-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 18px 40px -26px rgba(15, 23, 42, 0.42);
+        }
+        #web-subject-filter { min-width: 10rem; }
+
+        /* Exam surface */
+        #web-take-quiz { background: #f8fafc; }
+        #web-take-quiz > div:first-child {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+        #quiz-card-container {
+            border-radius: 1.25rem;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 24px 60px -42px rgba(15, 23, 42, 0.5);
+        }
+        #web-options-container button,
+        .match-select {
+            transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+        }
+        #web-options-container button:hover { border-color: #93c5fd; }
+        #web-btn-next {
+            background-image: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            box-shadow: 0 10px 24px -14px rgba(37, 99, 235, 0.7);
+        }
+        #web-btn-next:hover { background-image: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%); }
+        #ident-answer:focus { box-shadow: 0 0 0 4px var(--portal-ring); }
+
+        /* Modal polish */
+        #modal-hardware-check > div,
+        #custom-alert-modal > div,
+        #modal-student-passcode > div,
+        #modal-face-warning > div {
+            border-radius: 1.5rem;
+            animation: portalModalIn 200ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes portalModalIn {
+            from { opacity: 0; transform: translateY(10px) scale(0.975); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        #hardware-camera-preview { background: #0f172a; }
+
+        /* Active face monitoring warning */
+        #modal-face-warning { background: rgba(2, 6, 23, 0.94); }
+        #modal-face-warning > div {
+            border-top: 4px solid #dc2626;
+            box-shadow: 0 40px 90px -30px rgba(2, 6, 23, 0.9);
+        }
+        #face-warning-icon {
+            animation: faceWarningPulse 1.8s ease-in-out infinite;
+        }
+        @keyframes faceWarningPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.20); }
+            50% { box-shadow: 0 0 0 14px rgba(220, 38, 38, 0); }
+        }
+        #face-warning-btn {
+            background-image: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            box-shadow: 0 12px 28px -14px rgba(220, 38, 38, 0.8);
+            transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease;
+        }
+        #face-warning-btn:hover { filter: brightness(1.06); }
+        #face-warning-btn:active { transform: translateY(1px); }
+        #face-warning-btn:disabled { opacity: 0.7; cursor: wait; }
+
+        /* ===== v2.1.4 Portal shell: dashboard + active exam polish ===== */
+        .portal-footer {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 55;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.65rem 1.25rem;
+            background: rgba(8, 17, 31, 0.94);
+            border-top: 1px solid rgba(148, 197, 255, 0.14);
+            box-shadow: 0 -18px 42px -30px rgba(2, 8, 23, 0.9);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            pointer-events: none;
+        }
+        .portal-footer__center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.65rem;
+            white-space: nowrap;
+        }
+        .portal-footer__brand {
+            font-size: 0.64rem;
+            font-weight: 800;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: #cbd5e1;
+        }
+        .portal-footer__logo {
+            height: 1.55rem;
+            width: auto;
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+            opacity: 0.92;
+        }
+        .portal-footer__version {
+            margin-left: auto;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            color: #bfdbfe;
+            background: rgba(37, 99, 235, 0.22);
+            border: 1px solid rgba(96, 165, 250, 0.35);
+            padding: 0.22rem 0.55rem;
+            border-radius: 999px;
+        }
+        .portal-scroll { padding-bottom: 5.5rem !important; }
+
+        #web-view-dashboard .web-quiz-card { overflow: hidden; position: relative; }
+        #web-view-dashboard .web-quiz-card::after {
+            content: '';
+            position: absolute;
+            right: -2.5rem;
+            top: -2.5rem;
+            width: 7rem;
+            height: 7rem;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.10), transparent 68%);
+            pointer-events: none;
+        }
+        #web-view-dashboard .web-quiz-card > * { position: relative; z-index: 1; }
+        #web-subject-filter:focus { outline: none; box-shadow: 0 0 0 3px var(--portal-ring); border-radius: 0.5rem; }
+        #student-timer-display { font-variant-numeric: tabular-nums; letter-spacing: 0.045em; }
+        #web-question-count { letter-spacing: 0.12em; }
+        #web-options-container button {
+            background-color: #ffffff;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.035);
+        }
+        #web-options-container button:focus-visible {
+            outline: none;
+            border-color: var(--portal-brand);
+            box-shadow: 0 0 0 4px var(--portal-ring);
+        }
+        .match-select { background-color: #ffffff; }
+        .match-select:focus {
+            border-color: var(--portal-brand);
+            box-shadow: 0 0 0 4px var(--portal-ring);
+        }
+        #quiz-card-container { border: 1px solid rgba(226, 232, 240, 0.9); }
+        /* v2.1.4 focus trap: the exam is blurred (not submitted) while focus is lost. */
+        #quiz-card-container.exam-focus-lost {
+            filter: blur(8px);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* ===== v2.1.4 Pre-flight instructions ===== */
+        #modal-preflight > div {
+            border-radius: 1.5rem;
+            animation: portalModalIn 220ms cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 40px 90px -34px rgba(2, 6, 23, 0.85);
+        }
+        .preflight-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.7rem 0.85rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.85rem;
+            background: #f8fafc;
+        }
+        .preflight-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.5rem;
+            height: 1.5rem;
+            flex: 0 0 auto;
+            border-radius: 999px;
+            background: #dbeafe;
+            color: #1d4ed8;
+            font-size: 0.7rem;
+            font-weight: 800;
+        }
+        #preflight-custom-text {
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+        @media (max-width: 640px) {
+            .portal-footer { padding: 0.55rem 0.8rem; }
+            .portal-footer__brand { font-size: 0.56rem; letter-spacing: 0.14em; }
+            .portal-footer__logo { height: 1.3rem; }
+            .portal-footer__center { gap: 0.45rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.001ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.001ms !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-screen w-screen select-none flex flex-col">
+
+<!-- 1. LOGIN SCREEN -->
+<div id="web-view-login" class="fixed inset-0 bg-[#0B1727] z-50 flex items-center justify-center p-4">
+    <div class="bg-white p-6 sm:p-10 rounded-2xl shadow-2xl w-full max-w-sm relative text-center">
+        <div class="w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+            <img src="logo.png" alt="College Logo" class="w-full h-full object-contain drop-shadow-sm">
+        </div>
+        <h2 class="text-2xl font-black text-slate-800">Student Portal</h2>
+        <p class="text-sm text-slate-500 font-medium mb-8">Network Exam Access</p>
+        <div>
+            <label for="web-student-id" class="block text-left text-xs font-semibold text-slate-600 mb-1.5">Please type your student ID number</label>
+            <div class="relative mb-3">
+                <i class="fa-solid fa-id-badge absolute left-3 top-3.5 text-slate-400"></i>
+                <input type="text" id="web-student-id" class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-10 pr-4 py-3 text-sm focus:border-blue-500 outline-none" placeholder="Please type your student ID number">
+            </div>
+            <button type="button" onclick="webLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors flex justify-center items-center gap-2">
+                Connect to Server <i class="fa-solid fa-wifi"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 2. QUIZ DASHBOARD -->
+<div id="web-view-dashboard" class="hidden h-full flex-col">
+     <div class="bg-white min-h-[5rem] py-3 md:py-0 border-b border-slate-200 px-4 md:px-8 flex flex-wrap items-center justify-between gap-4 shadow-sm shrink-0">
+        <div class="flex items-center gap-3 md:gap-4">
+            <div class="w-10 h-10 md:w-12 md:h-12 bg-blue-600 text-white rounded-full flex items-center justify-center text-lg md:text-xl shadow-md shrink-0">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <div>
+                <h1 class="text-lg md:text-xl font-black text-slate-800 tracking-tight leading-tight">STUDENT PORTAL</h1>
+                <p id="auth-student-details" class="text-[10px] md:text-xs font-bold text-blue-600 truncate max-w-[150px] sm:max-w-xs">Connected</p>
+            </div>
+        </div>
+        <button onclick="location.reload()" class="text-red-500 hover:bg-red-50 px-3 py-2 rounded-lg font-semibold text-xs md:text-sm transition-colors flex items-center gap-2 border border-transparent hover:border-red-100">
+            <i class="fa-solid fa-right-from-bracket"></i> <span class="hidden sm:inline">Disconnect</span>
+        </button>
+    </div>
+    
+    <div class="portal-scroll flex-1 overflow-y-auto p-4 sm:p-6 md:p-10">
+        <div class="max-w-6xl mx-auto">
+            <div class="mb-8 md:mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-black text-slate-800 mb-1 md:mb-2">Available Quizzes</h2>
+                    <p class="text-sm md:text-base text-slate-500">Exams assigned to your student ID.</p>
+                </div>
+                <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm shrink-0 w-full md:w-auto">
+                    <i class="fa-solid fa-filter text-blue-500"></i>
+                    <select id="web-subject-filter" onchange="filterWebQuizzes()" class="bg-transparent border-none outline-none text-sm font-bold text-slate-700 cursor-pointer w-full">
+                        <option value="all">All Subjects</option>
+                    </select>
+                </div>
+            </div>
+            <div id="web-quiz-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                <!-- Quizzes injected here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 3. TAKE QUIZ VIEW -->
+<div id="web-take-quiz" class="fixed inset-0 bg-slate-50 z-[60] hidden flex-col">
+    <div class="bg-white min-h-[5rem] py-3 md:py-0 border-b border-slate-200 px-4 md:px-8 flex flex-wrap items-center justify-between gap-3 shadow-sm shrink-0">
+        <div class="flex-1 min-w-0">
+            <p class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Now Taking</p>
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                <h2 id="web-quiz-title" class="text-base md:text-xl font-black text-slate-800 truncate">Quiz Title</h2>
+                <div id="student-timer-display" class="hidden flex items-center gap-2 bg-red-100 text-red-700 px-3 py-1 md:px-4 md:py-1.5 rounded-lg font-black text-sm md:text-lg border-2 border-red-200 w-fit transition-colors duration-300">
+                    <i class="fa-solid fa-stopwatch text-base md:text-xl"></i> 
+                    <span id="student-time-remaining">00:00</span>
+                </div>
+            </div>
+        </div>
+        <button type="button" onclick="location.reload()" class="text-red-500 hover:bg-red-50 px-3 py-2 rounded-lg text-xs md:text-sm font-bold transition-colors border border-red-100 shrink-0">Abort</button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto p-4 sm:p-6 md:p-10 flex justify-center">
+        <div class="max-w-3xl w-full bg-white rounded-xl md:rounded-2xl shadow-sm border border-slate-200 p-5 md:p-10 h-fit transition-all duration-300" id="quiz-card-container">
+            <div class="mb-6 md:mb-8 border-b border-slate-100 pb-4 md:pb-6">
+                <div class="flex items-center gap-2 flex-wrap mb-3 md:mb-4">
+                    <span id="web-question-count" class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-[10px] md:text-xs font-bold tracking-wider uppercase inline-block">Question X of Y</span>
+                    <span id="student-question-timer" class="hidden items-center gap-1.5 bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-[10px] md:text-xs font-black border border-amber-200"><i class="fa-solid fa-stopwatch"></i> <span id="student-question-time-remaining">00:00</span></span>
+                </div>
+                <h3 id="web-question-text" class="text-lg md:text-2xl font-bold text-slate-800 leading-snug">Question text goes here?</h3>
+            </div>
+
+            <div id="web-options-container" class="space-y-3 md:space-y-4 mb-8 md:mb-10">
+                <!-- Options / Formats injected here -->
+            </div>
+
+            <div class="flex justify-end">
+                <button id="web-btn-next" type="button" onclick="nextWebQuestion()" class="hidden bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto px-6 py-3 md:px-8 rounded-xl font-bold shadow-sm transition-colors text-base md:text-lg">
+                    Next Question <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- BATCH 5: PRE-FLIGHT HARDWARE CHECK (CAMERA GATE) -->
+<div id="modal-hardware-check" class="fixed inset-0 bg-slate-900/90 z-[85] hidden items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 text-center">
+        <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4 border border-blue-100">
+            <i class="fa-solid fa-video"></i>
+        </div>
+        <h2 class="text-xl font-black text-slate-800 mb-1">Hardware Check</h2>
+        <p class="text-sm text-slate-500 mb-4">This exam requires a live camera. Allow camera access to continue.</p>
+
+        <div class="relative bg-slate-900 rounded-xl overflow-hidden aspect-video mb-4">
+            <video id="hardware-camera-preview" autoplay muted playsinline class="w-full h-full object-cover"></video>
+            <div id="hardware-camera-placeholder" class="absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-400">
+                <i class="fa-solid fa-video-slash text-3xl"></i>
+                <span class="text-[11px] font-semibold uppercase tracking-wider">Camera off</span>
+            </div>
+        </div>
+
+        <p id="hardware-status" class="text-xs font-semibold text-slate-500 mb-4 min-h-[2.5rem]">Waiting to request camera access...</p>
+
+        <div class="flex flex-col gap-2">
+            <button id="hardware-continue-btn" onclick="continueAfterCameraCheck()" disabled class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-colors">Continue to PIN</button>
+            <button onclick="enableCameraForCheck()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl transition-colors text-sm">Retry Camera</button>
+            <button onclick="cancelHardwareCheck()" class="w-full text-slate-500 hover:bg-slate-50 font-bold py-2 rounded-xl text-xs transition-colors">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- BATCH 4: DYNAMIC WATERMARK OVERLAY -->
+<div id="dynamic-watermark" class="fixed inset-0 z-[65] pointer-events-none hidden overflow-hidden"></div>
+
+<!-- ACTIVE FACE DETECTION: BLOCKING WARNING MODAL -->
+<div id="modal-face-warning" class="fixed inset-0 z-[120] hidden items-center justify-center p-4 backdrop-blur-md" role="alertdialog" aria-modal="true" aria-labelledby="face-warning-title">
+    <div class="bg-white w-full max-w-md p-7 sm:p-8 text-center">
+        <div id="face-warning-icon" class="w-20 h-20 bg-red-50 text-red-600 rounded-full flex items-center justify-center text-4xl mx-auto mb-5 border border-red-100">
+            <i class="fa-solid fa-user-slash"></i>
+        </div>
+        <p class="text-[11px] font-extrabold text-red-600 uppercase tracking-[0.18em] mb-2">Proctoring Alert</p>
+        <h2 id="face-warning-title" class="text-2xl font-black text-slate-900 mb-3 tracking-tight">Face Not Detected!</h2>
+        <p class="text-sm text-slate-600 leading-relaxed mb-5">Please ensure your face is clearly visible in the camera to continue.</p>
+        <p id="face-warning-status" class="text-xs font-semibold text-slate-500 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 mb-5 min-h-[3rem]">The exam timer is paused. Show your full face in the camera, then select OK, Resume.</p>
+        <button id="face-warning-btn" type="button" onclick="dismissFaceWarning()" class="w-full text-white font-bold py-3.5 rounded-xl transition-colors focus:outline-none focus:ring-4 focus:ring-red-200">
+            OK, Resume
+        </button>
+    </div>
+</div>
+
+<!-- CUSTOM ALERT MODAL -->
+<div id="custom-alert-modal" class="fixed inset-0 bg-slate-900/80 z-[100] hidden items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center transform transition-transform" id="custom-alert-box">
+        <div id="custom-alert-icon-container" class="w-16 h-16 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">
+            <i id="custom-alert-icon" class="fa-solid fa-bell"></i>
+        </div>
+        <h2 id="custom-alert-title" class="text-xl font-black text-slate-800 mb-2">Notice</h2>
+        <p id="custom-alert-message" class="text-sm text-slate-600 mb-6 whitespace-pre-wrap leading-relaxed">Message goes here.</p>
+        <button id="custom-alert-btn" class="w-full text-white font-bold py-3 rounded-xl transition-colors shadow-sm focus:outline-none focus:ring-4">
+            OK
+        </button>
+    </div>
+</div>
+
+<!-- STUDENT PASSCODE LOCK MODAL -->
+<div id="modal-student-passcode" class="fixed inset-0 bg-slate-900/80 z-[90] hidden items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 text-center transform scale-95 transition-transform duration-200">
+        <div class="w-16 h-16 bg-orange-50 text-orange-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-4 border border-orange-100 shadow-sm">
+            <i class="fa-solid fa-lock"></i>
+        </div>
+        <h2 class="text-xl font-bold text-slate-800 mb-2">Quiz Locked</h2>
+        <p class="text-sm text-slate-500 mb-6">Enter the 4-digit Live PIN code displayed by your instructor to unlock this exam (Single-use per Student ID).</p>
+
+        <input type="password" id="student-passcode-input" maxlength="4" class="w-full px-4 py-3 text-center text-2xl font-black tracking-[0.5em] border-2 border-slate-300 rounded-lg focus:border-orange-500 outline-none mb-6 text-slate-700" placeholder="****">
+
+        <div class="flex flex-col sm:flex-row justify-center gap-3">
+            <button onclick="document.getElementById('modal-student-passcode').classList.add('hidden'); document.getElementById('modal-student-passcode').classList.remove('flex');" class="order-2 sm:order-1 px-4 py-3 sm:py-2 text-slate-600 font-bold text-sm hover:bg-slate-100 border border-slate-200 sm:border-none rounded-lg w-full transition-colors">Cancel</button>
+            <button onclick="verifyQuizPasscode()" class="order-1 sm:order-2 px-4 py-3 sm:py-2 bg-orange-500 text-white font-bold text-sm rounded-lg hover:bg-orange-600 shadow-sm w-full transition-colors">Unlock Quiz</button>
+        </div>
+    </div>
+</div>
+
+<!-- v2.1.4: SUBMISSION NETWORK DROP PROTECTION -->
+<div id="modal-network-retry" class="fixed inset-0 bg-slate-950/90 z-[130] hidden items-center justify-center p-4 backdrop-blur-md" role="alertdialog" aria-modal="true" aria-labelledby="network-retry-title">
+    <div class="bg-white w-full max-w-md overflow-hidden rounded-2xl shadow-2xl text-center">
+        <div class="bg-gradient-to-br from-amber-500 to-red-600 px-6 py-5 text-white">
+            <div class="w-14 h-14 rounded-full bg-white/15 border border-white/25 flex items-center justify-center text-2xl mx-auto mb-3">
+                <i class="fa-solid fa-wifi"></i>
+            </div>
+            <p class="text-[10px] font-extrabold uppercase tracking-[0.2em] text-amber-100 mb-1">Submission Held</p>
+            <h2 id="network-retry-title" class="text-xl font-black tracking-tight">Network Disconnected</h2>
+        </div>
+        <div class="px-6 py-5">
+            <p id="network-retry-status" class="text-sm font-medium text-slate-600 leading-relaxed mb-3">Network disconnected. Your answers are saved locally. Please reconnect to Wi-Fi and click Retry.</p>
+            <p id="network-retry-saved" class="text-xs font-semibold text-slate-500 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 mb-5 min-h-[2.75rem]"></p>
+            <button id="network-retry-btn" type="button" onclick="retryExamSubmission()" class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-wait text-white font-bold py-3 rounded-xl transition-colors shadow-sm">
+                <i class="fa-solid fa-rotate-right mr-2"></i> Retry Submission
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- PRE-FLIGHT INSTRUCTIONS (shown before camera check / PIN entry) -->
+<div id="modal-preflight" class="fixed inset-0 bg-slate-950/90 z-[88] hidden items-center justify-center p-4 backdrop-blur-md" role="dialog" aria-modal="true" aria-labelledby="preflight-title">
+    <div class="bg-white w-full max-w-lg overflow-hidden">
+        <div class="bg-gradient-to-br from-blue-600 to-indigo-700 px-6 py-5 text-white">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center text-xl shadow-inner">
+                    <i class="fa-solid fa-clipboard-check"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-[10px] font-extrabold uppercase tracking-[0.22em] text-blue-100">Before you begin</p>
+                    <h2 id="preflight-title" class="text-xl font-black tracking-tight">Pre-Flight Instructions</h2>
+                </div>
+            </div>
+            <p id="preflight-quiz-name" class="mt-4 truncate text-sm font-semibold text-blue-100"></p>
+        </div>
+        <div class="max-h-[56vh] overflow-y-auto px-6 py-5">
+            <p class="mb-3 text-[11px] font-extrabold uppercase tracking-[0.16em] text-slate-400">Required setup</p>
+            <div class="space-y-2.5">
+                <div class="preflight-item">
+                    <span class="preflight-num">1</span>
+                    <p class="text-sm font-medium leading-relaxed text-slate-700">Turn on Do Not Disturb to block notifications.</p>
+                </div>
+                <div class="preflight-item">
+                    <span class="preflight-num">2</span>
+                    <p class="text-sm font-medium leading-relaxed text-slate-700">Close all background apps and floating windows.</p>
+                </div>
+                <div class="preflight-item">
+                    <span class="preflight-num">3</span>
+                    <p class="text-sm font-medium leading-relaxed text-slate-700">Ensure your face is clearly visible.</p>
+                </div>
+            </div>
+            <div id="preflight-custom-wrap" class="mt-5 hidden">
+                <p class="mb-2 text-[11px] font-extrabold uppercase tracking-[0.16em] text-slate-400">Instructor's instructions</p>
+                <div id="preflight-custom-text" class="rounded-xl border border-blue-100 bg-blue-50/70 px-4 py-3 text-sm font-medium leading-relaxed text-slate-700"></div>
+            </div>
+        </div>
+        <div class="flex flex-col-reverse gap-2 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:flex-row sm:justify-end">
+            <button type="button" onclick="cancelPreflight()" class="w-full rounded-xl px-4 py-2.5 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-200 sm:w-auto">Cancel</button>
+            <button id="preflight-agree-btn" type="button" onclick="acceptPreflight()" class="w-full rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-blue-700 sm:w-auto">I Understand &amp; Agree</button>
+        </div>
+    </div>
+</div>
+
+<!-- v2.1.4 BRAND FOOTER -->
+<footer class="portal-footer" aria-label="Application footer">
+    <span aria-hidden="true"></span>
+    <div class="portal-footer__center">
+        <span class="portal-footer__brand">DEVELOPED BY ACA</span>
+        <img src="ACA_Logo.png" alt="ACA Logo" class="portal-footer__logo">
+    </div>
+    <span class="portal-footer__version">v2.1.4</span>
+</footer>
+
+<script>
+    let loggedInStudent = null;
+    let activeSessionToken = null;
+    let sessionHeartbeatInterval = null;
+    let activeQuizQuestions = [];
+    let currentQuestionIndex = 0;
+    let currentScore = 0;
+    let activeQuizTitle = "";
+    let currentSelectedAnswer = null;
+    let studentTimerInterval = null; 
+    let pendingStudentQuiz = null;
+    let customAlertCallback = null;
+    let studentAnswerSheet = []; 
+    let activeTabLimit = 3;
+    let activePassingRate = 50;
+    let cheatWarnings = 0;
+    let lastViolationTime = 0;
+    let baselineViewportHeight = window.innerHeight;
+    let baselineViewportWidth = window.innerWidth;
+    let activeQuestionTimeLimit = 0;
+    let questionTimerInterval = null;
+    let watermarkRefreshInterval = null;
+    let resizeAutoSubmitTriggered = false;
+    let cameraStream = null;
+    let cameraCheckInterval = null;
+    let cameraCheckDeadline = null;
+    let cameraMonitorInterval = null;
+    let cameraIdleSince = null;
+    let cameraIdleReported = false;
+
+    // v2.1.4: exam filtering, pre-flight instructions and face proctoring state
+    let webQuizzesByTitle = {};
+    let activeQuizRequiresCamera = false;
+    let studentSecondsRemaining = 0;
+    let studentTimerPaused = false;
+    let questionSecondsRemaining = 0;
+    let questionTimerPaused = false;
+    let faceMonitorInterval = null;
+    let faceModelsPromise = null;
+    let faceWarningActive = false;
+    let faceMonitoringGraceUntil = 0;
+    let faceWarningCooldownUntil = 0;
+    let faceDetectionVideo = null;
+    // v2.1.4: submission watchdog state (network drop protection).
+    let submissionInFlight = false;
+    let pendingSubmission = null;
+    // v2.1.4 calibration: tolerance buffer so a single dropped detection tick cannot
+    // pause the exam. 1.5s ticks with 2 consecutive misses = exactly ~3.0s buffer.
+    const FACE_MONITOR_INTERVAL_MS = 1500;
+    const FACE_MISS_TOLERANCE_TICKS = 2;
+    let missedFaceCount = 0;
+    let faceDetectionInFlight = false;
+    let sessionIncidentCount = 0;
+
+    function decodeEntities(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, "'")
+            .replace(/&apos;/g, "'")
+            .replace(/&amp;/g, '&');
+    }
+
+    function escapeHtml(str) {
+        return decodeEntities(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function showCustomAlert(title, message, type = 'info', callback = null) {
+        const modal = document.getElementById('custom-alert-modal');
+        const iconContainer = document.getElementById('custom-alert-icon-container');
+        const icon = document.getElementById('custom-alert-icon');
+        const btn = document.getElementById('custom-alert-btn');
+
+        document.getElementById('custom-alert-title').innerText = title;
+        document.getElementById('custom-alert-message').innerText = message;
+        customAlertCallback = callback;
+
+        iconContainer.className = "w-16 h-16 rounded-full flex items-center justify-center text-3xl mx-auto mb-4 border-4";
+        btn.className = "w-full text-white font-bold py-3 rounded-xl transition-colors shadow-sm focus:outline-none focus:ring-4";
+
+        if (type === 'error' || type === 'warning') {
+            iconContainer.classList.add('bg-red-50', 'text-red-600', 'border-red-100');
+            icon.className = "fa-solid fa-triangle-exclamation animate-pulse";
+            btn.classList.add('bg-red-600', 'hover:bg-red-700', 'focus:ring-red-200');
+        } else if (type === 'success') {
+            iconContainer.classList.add('bg-green-50', 'text-green-600', 'border-green-100');
+            icon.className = "fa-solid fa-thumbs-up";
+            btn.classList.add('bg-green-600', 'hover:bg-green-700', 'focus:ring-green-200');
+        } else {
+            iconContainer.classList.add('bg-blue-50', 'text-blue-600', 'border-blue-100');
+            icon.className = "fa-solid fa-circle-info";
+            btn.classList.add('bg-blue-600', 'hover:bg-blue-700', 'focus:ring-blue-200');
+        }
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        setTimeout(() => btn.focus(), 100);
+    }
+
+    document.getElementById('custom-alert-btn').addEventListener('click', () => {
+        document.getElementById('custom-alert-modal').classList.add('hidden');
+        document.getElementById('custom-alert-modal').classList.remove('flex');
+        
+        if (activeQuizTitle !== "" && !document.fullscreenElement) {
+            enterFullscreen();
+        }
+
+        if (customAlertCallback) {
+            const cb = customAlertCallback;
+            customAlertCallback = null;
+            cb();
+        }
+    });
+
+    function enterFullscreen() {
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen().catch(err => console.log("Fullscreen restriction:", err));
+        } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) {
+            elem.msRequestFullscreen();
+        }
+        setTimeout(() => {
+            baselineViewportHeight = window.innerHeight;
+            baselineViewportWidth = window.innerWidth;
+        }, 500);
+    }
+
+    // BATCH 4: DYNAMIC WATERMARK (student identity drifting across the exam view)
+    function showDynamicWatermark() {
+        const layer = document.getElementById('dynamic-watermark');
+        if (!layer || !loggedInStudent) return;
+
+        const render = () => {
+            const time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            const label = `${loggedInStudent.full_name} • ${loggedInStudent.student_id} • ${time}`;
+            const cols = Math.max(3, Math.ceil(window.innerWidth / 320));
+            const rows = Math.max(4, Math.ceil(window.innerHeight / 140));
+            let html = '';
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const left = Math.round((c / cols) * 100) + (r % 2 === 0 ? 0 : 6);
+                    const top = Math.round(((r + 0.3) / rows) * 100);
+                    const delay = ((r * 7 + c * 3) % 18);
+                    html += `<span class="watermark-tile" style="left:${left}%;top:${top}%;animation-delay:-${delay}s">${escapeHtml(label)}</span>`;
+                }
+            }
+            layer.innerHTML = html;
+        };
+
+        render();
+        layer.classList.remove('hidden');
+        clearInterval(watermarkRefreshInterval);
+        watermarkRefreshInterval = setInterval(render, 30000);
+    }
+
+    function hideDynamicWatermark() {
+        clearInterval(watermarkRefreshInterval);
+        watermarkRefreshInterval = null;
+        const layer = document.getElementById('dynamic-watermark');
+        if (layer) {
+            layer.classList.add('hidden');
+            layer.innerHTML = '';
+        }
+    }
+
+    // LAYER 1 & 2: LOGIN WITH SINGLE-DEVICE TOKEN BINDING & GATEKEEPER CHECK
+    async function webLogin() {
+        const studentId = document.getElementById('web-student-id').value.trim();
+        if (!studentId) {
+            showCustomAlert("Login Error", "Please enter your Student ID.", "error");
+            return;
+        }
+
+        const savedToken = localStorage.getItem(`deviceToken_${studentId}`) || "";
+
+        try {
+            const response = await fetch('/api/student-login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ studentId, clientToken: savedToken })
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                loggedInStudent = data.student;
+                activeSessionToken = data.sessionToken;
+                localStorage.setItem(`deviceToken_${studentId}`, activeSessionToken);
+                startSessionHeartbeat();
+
+                document.getElementById('web-view-login').classList.add('hidden');
+                document.getElementById('web-view-dashboard').classList.remove('hidden');
+                document.getElementById('web-view-dashboard').classList.add('flex');
+                document.getElementById('auth-student-details').innerText = `${loggedInStudent.full_name} | ${loggedInStudent.course_section}`;
+                loadQuizzes();
+            } else {
+                showCustomAlert("Access Denied", data.message || "Student ID not found. Please ask the instructor to register you.", "error");
+            }
+        } catch (error) {
+            showCustomAlert("Network Disconnected", "Error connecting to server. Make sure the instructor's exam server is open.", "error");
+        }
+    }
+
+    // BUG 2: SESSION LEASE HEARTBEAT
+    // Keeps the device lock alive while this tab is open. If the laptop dies or the
+    // browser is killed, the server stops hearing from this tab and frees the seat
+    // after its grace period, so the student is not locked out by a zombie session.
+    function startSessionHeartbeat() {
+        stopSessionHeartbeat();
+        if (!loggedInStudent || !activeSessionToken) return;
+
+        const beat = () => {
+            if (!loggedInStudent || !activeSessionToken) return;
+            fetch('/api/student-heartbeat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    studentId: loggedInStudent.student_id,
+                    clientToken: activeSessionToken
+                })
+            }).catch(() => {});
+        };
+
+        beat();
+        sessionHeartbeatInterval = setInterval(beat, 15000);
+    }
+
+    function stopSessionHeartbeat() {
+        clearInterval(sessionHeartbeatInterval);
+        sessionHeartbeatInterval = null;
+    }
+
+    window.addEventListener('pagehide', () => {
+        if (!loggedInStudent || !activeSessionToken) return;
+        const payload = new Blob([JSON.stringify({
+            studentId: loggedInStudent.student_id,
+            clientToken: activeSessionToken
+        })], { type: 'application/json' });
+        if (navigator.sendBeacon) navigator.sendBeacon('/api/student-logout', payload);
+        stopSessionHeartbeat();
+    });
+
+    async function loadQuizzes() {
+        let quizzes = [];
+        try {
+            const response = await fetch(`/api/quizzes?studentId=${encodeURIComponent(loggedInStudent.student_id)}`);
+            quizzes = await response.json();
+        } catch (error) {
+            showCustomAlert("Network Error", "Could not load your assigned exams. Please check the connection and try again.", "error");
+            return;
+        }
+
+        let completedQuizzes = [];
+        try {
+            const resResults = await fetch(`/api/student-results?studentId=${encodeURIComponent(loggedInStudent.student_id)}`);
+            const completedData = await resResults.json();
+            completedQuizzes = (Array.isArray(completedData) ? completedData : []).map(r => r.quiz_title);
+        } catch (error) {
+            completedQuizzes = [];
+        }
+
+        // v2.1.4: the server scopes this list by student roster, target section and instructor ownership.
+        const visibleQuizzes = Array.isArray(quizzes) ? quizzes : [];
+        webQuizzesByTitle = {};
+        visibleQuizzes.forEach(quiz => { webQuizzesByTitle[quiz.title] = quiz; });
+
+        const container = document.getElementById('web-quiz-container');
+        container.innerHTML = '';
+
+        const filterSelect = document.getElementById('web-subject-filter');
+        if (filterSelect) {
+            filterSelect.innerHTML = '<option value="all">All Subjects</option>';
+            const uniqueSubjects = [...new Set(visibleQuizzes.map(q => q.subject))];
+            uniqueSubjects.forEach(sub => {
+                filterSelect.insertAdjacentHTML('beforeend', `<option value="${sub}">${sub}</option>`);
+            });
+        }
+
+        if (visibleQuizzes.length === 0) {
+            container.innerHTML = `<div class="col-span-full p-8 text-center text-slate-500">No exams are assigned to your student ID yet. Please ask your instructor to enroll you in a subject or section.</div>`;
+            return;
+        }
+
+        visibleQuizzes.forEach(quiz => {
+            const isCompleted = completedQuizzes.includes(quiz.title);
+            const timerBadge = quiz.time_limit > 0 ? `<i class="fa-regular fa-clock"></i> ${quiz.time_limit} Mins` : `<i class="fa-solid fa-infinity"></i> Untimed`;
+            const lockIcon = '<i class="fa-solid fa-lock text-orange-500 ml-2" title="Single-Use PIN Required"></i>';
+            
+            const actualItems = Math.min(quiz.items, quiz.uploaded_count);
+            
+            const safeTitle = quiz.title.replace(/'/g, "\\'");
+            const safePasscode = quiz.passcode ? quiz.passcode.replace(/'/g, "\\'") : '';
+            const safeTabLimit = quiz.tab_limit !== null && quiz.tab_limit !== undefined ? quiz.tab_limit : 3;
+            const safePassingRate = quiz.passing_rate !== null && quiz.passing_rate !== undefined ? quiz.passing_rate : 50;
+            const safeIdleLimit = (quiz.idle_time_limit && quiz.idle_time_limit > 0) ? quiz.idle_time_limit : 20; 
+            const safeQuestionTimeLimit = (quiz.question_time_limit && quiz.question_time_limit > 0) ? quiz.question_time_limit : 0;
+            const safeRequireCamera = quiz.require_camera === 1 || quiz.require_camera === true;
+
+            const hasSavedProgress = localStorage.getItem(`examProgress_${loggedInStudent.student_id}_${quiz.title}`) !== null;
+            let actionButton = '';
+
+            if (isCompleted) {
+                actionButton = `<button disabled class="bg-slate-300 text-slate-500 px-4 py-2 rounded-lg text-xs sm:text-sm font-bold cursor-not-allowed shadow-inner w-full"><i class="fa-solid fa-lock mr-1"></i> Completed</button>`;
+            } else if (hasSavedProgress) {
+                actionButton = `<button onclick="attemptQuiz('${safeTitle}', ${quiz.time_limit || 0}, '${safePasscode}', ${actualItems}, ${safeTabLimit}, ${safePassingRate}, ${safeIdleLimit}, true, ${safeQuestionTimeLimit}, ${safeRequireCamera})" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm w-full"><i class="fa-solid fa-rotate-right mr-1"></i> Resume Exam</button>`;
+            } else {
+                actionButton = `<button onclick="attemptQuiz('${safeTitle}', ${quiz.time_limit || 0}, '${safePasscode}', ${actualItems}, ${safeTabLimit}, ${safePassingRate}, ${safeIdleLimit}, false, ${safeQuestionTimeLimit}, ${safeRequireCamera})" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm w-full">Start Quiz</button>`;
+            }
+
+            container.insertAdjacentHTML('beforeend', `
+                <div class="web-quiz-card bg-white rounded-xl border border-slate-200 shadow-sm p-5 sm:p-6 flex flex-col border-t-4 ${isCompleted ? 'border-t-slate-400 opacity-80' : 'border-t-blue-500 hover:shadow-md transition-shadow'}" data-subject="${quiz.subject}">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="${isCompleted ? 'bg-slate-100 text-slate-500' : 'bg-blue-100 text-blue-700'} text-[10px] font-bold px-2.5 py-1 rounded-full uppercase truncate max-w-[120px] sm:max-w-none">${quiz.subject}</span>
+                        <span class="text-[10px] sm:text-xs font-semibold text-slate-500 flex items-center gap-1 shrink-0">${timerBadge}</span>
+                    </div>
+                    <h3 class="text-base sm:text-lg font-bold text-slate-800 mb-6 leading-tight">${quiz.title} ${lockIcon}</h3>
+                    <div class="mt-auto border-t border-slate-100 pt-4 flex justify-between items-center gap-4">
+                        <div class="text-center shrink-0">
+                            <p class="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase">Items</p>
+                            <p class="text-base sm:text-lg font-extrabold text-slate-700">${actualItems}</p>
+                        </div>
+                        <div class="flex-1">${actionButton}</div>
+                    </div>
+                </div>
+            `);
+        });
+    }
+
+    function filterWebQuizzes() {
+        const selectedSubject = document.getElementById('web-subject-filter').value;
+        const cards = document.querySelectorAll('.web-quiz-card');
+        cards.forEach(card => {
+            if (selectedSubject === 'all' || card.getAttribute('data-subject') === selectedSubject) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    // v2.1.4: every quiz selection opens the Pre-Flight Instructions screen first.
+    function attemptQuiz(quizTitle, timeLimit, passcode, targetItems, tabLimit, passingRate, idleLimit, isResuming = false, questionTimeLimit = 0, requireCamera = false) {
+        const quizMeta = webQuizzesByTitle[quizTitle] || {};
+        pendingStudentQuiz = {
+            quizTitle,
+            timeLimit,
+            passcode,
+            targetItems,
+            tabLimit,
+            passingRate,
+            idleLimit,
+            questionTimeLimit,
+            isResuming,
+            requireCamera,
+            customInstructions: quizMeta.custom_instructions || ''
+        };
+        openPreflightInstructions();
+    }
+
+    function openPreflightInstructions() {
+        if (!pendingStudentQuiz) return;
+
+        document.getElementById('preflight-quiz-name').innerText = pendingStudentQuiz.quizTitle;
+
+        const customWrap = document.getElementById('preflight-custom-wrap');
+        const customText = document.getElementById('preflight-custom-text');
+        const custom = String(pendingStudentQuiz.customInstructions || '').trim();
+        if (custom) {
+            customText.textContent = custom;
+            customWrap.classList.remove('hidden');
+        } else {
+            customText.textContent = '';
+            customWrap.classList.add('hidden');
+        }
+
+        const modal = document.getElementById('modal-preflight');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closePreflightInstructions() {
+        const modal = document.getElementById('modal-preflight');
+        if (!modal) return;
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    function cancelPreflight() {
+        closePreflightInstructions();
+        pendingStudentQuiz = null;
+    }
+
+    function acceptPreflight() {
+        if (!pendingStudentQuiz) return;
+        closePreflightInstructions();
+        proceedAfterPreflight();
+    }
+
+    // The camera gate and PIN/resume flow only begin after the student agrees to the rules.
+    function proceedAfterPreflight() {
+        if (!pendingStudentQuiz) return;
+
+        if (pendingStudentQuiz.requireCamera) {
+            openHardwareCheck();
+            return;
+        }
+
+        if (pendingStudentQuiz.isResuming) {
+            startWebQuiz(
+                pendingStudentQuiz.quizTitle,
+                pendingStudentQuiz.timeLimit,
+                pendingStudentQuiz.targetItems,
+                pendingStudentQuiz.tabLimit,
+                pendingStudentQuiz.passingRate,
+                pendingStudentQuiz.idleLimit,
+                pendingStudentQuiz.questionTimeLimit
+            );
+            return;
+        }
+
+        document.getElementById('student-passcode-input').value = '';
+        const modal = document.getElementById('modal-student-passcode');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        setTimeout(() => document.getElementById('student-passcode-input').focus(), 100);
+    }
+
+    async function verifyQuizPasscode() {
+        const input = document.getElementById('student-passcode-input').value.trim();
+        if (!input) return;
+
+        try {
+            const response = await fetch('/api/verify-quiz-pin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    studentId: loggedInStudent.student_id,
+                    studentName: loggedInStudent.full_name,
+                    quizTitle: pendingStudentQuiz.quizTitle,
+                    pin: input,
+                    clientToken: activeSessionToken
+                })
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                const modal = document.getElementById('modal-student-passcode');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                startWebQuiz(
+                    pendingStudentQuiz.quizTitle,
+                    pendingStudentQuiz.timeLimit,
+                    pendingStudentQuiz.targetItems,
+                    pendingStudentQuiz.tabLimit,
+                    pendingStudentQuiz.passingRate,
+                    pendingStudentQuiz.idleLimit,
+                    pendingStudentQuiz.questionTimeLimit
+                );
+            } else {
+                showCustomAlert("Access Denied", data.message || "Incorrect PIN code. Please check the whiteboard or ask your instructor.", "error");
+                document.getElementById('student-passcode-input').value = '';
+                document.getElementById('student-passcode-input').focus();
+            }
+        } catch (err) {
+            showCustomAlert("Network Error", "Could not verify PIN with the exam server.", "error");
+        }
+    }
+
+    // BATCH 5: PRE-FLIGHT CAMERA GATE
+    function setHardwareStatus(message, tone) {
+        const el = document.getElementById('hardware-status');
+        if (!el) return;
+        el.innerText = message;
+        el.classList.remove('text-slate-500', 'text-green-600', 'text-red-600');
+        if (tone === 'success') el.classList.add('text-green-600');
+        else if (tone === 'error') el.classList.add('text-red-600');
+        else el.classList.add('text-slate-500');
+    }
+
+    function isCameraFeedLive() {
+        const video = document.getElementById('hardware-camera-preview');
+        const track = cameraStream ? cameraStream.getVideoTracks()[0] : null;
+        return !!(video && track && track.readyState === 'live' && !track.muted && video.videoWidth > 0 && video.readyState >= 2);
+    }
+
+    function openHardwareCheck() {
+        const modal = document.getElementById('modal-hardware-check');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.getElementById('hardware-continue-btn').disabled = true;
+        document.getElementById('hardware-camera-placeholder').classList.remove('hidden');
+        stopCameraStream();
+        enableCameraForCheck();
+    }
+
+    async function enableCameraForCheck() {
+        const video = document.getElementById('hardware-camera-preview');
+        const continueBtn = document.getElementById('hardware-continue-btn');
+        continueBtn.disabled = true;
+        clearInterval(cameraCheckInterval);
+        cameraCheckInterval = null;
+        setHardwareStatus('Requesting camera access...', 'info');
+
+        // Release any previous stream so Retry starts clean
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+            cameraStream = null;
+        }
+        if (video) video.srcObject = null;
+        document.getElementById('hardware-camera-placeholder').classList.remove('hidden');
+
+        if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+            setHardwareStatus('Camera access is not supported in this browser. Use Chrome or Edge and allow camera permissions.', 'error');
+            return;
+        }
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { width: { ideal: 640 }, height: { ideal: 480 } },
+                audio: false
+            });
+            cameraStream = stream;
+            video.srcObject = stream;
+            const playAttempt = video.play();
+            if (playAttempt && playAttempt.catch) playAttempt.catch(() => {});
+            document.getElementById('hardware-camera-placeholder').classList.add('hidden');
+
+            const track = stream.getVideoTracks()[0];
+            if (track) {
+                track.addEventListener('ended', () => {
+                    const modal = document.getElementById('modal-hardware-check');
+                    if (activeQuizTitle === "" && modal && !modal.classList.contains('hidden')) {
+                        continueBtn.disabled = true;
+                        setHardwareStatus('The camera feed ended. Reconnect the webcam and click Retry Camera.', 'error');
+                    }
+                });
+            }
+
+            setHardwareStatus('Camera connected. Verifying live video...', 'info');
+
+            // 10-second idle tracker: no usable video frames means no working webcam
+            cameraCheckDeadline = Date.now() + 10000;
+            cameraCheckInterval = setInterval(() => {
+                if (isCameraFeedLive()) {
+                    clearInterval(cameraCheckInterval);
+                    cameraCheckInterval = null;
+                    continueBtn.disabled = false;
+                    setHardwareStatus('Live camera feed verified. You may continue.', 'success');
+                } else if (Date.now() >= cameraCheckDeadline) {
+                    clearInterval(cameraCheckInterval);
+                    cameraCheckInterval = null;
+                    continueBtn.disabled = true;
+                    setHardwareStatus('No live video detected within 10 seconds. This device cannot start a camera-required exam.', 'error');
+                    if (cameraStream) {
+                        cameraStream.getTracks().forEach(t => t.stop());
+                        cameraStream = null;
+                    }
+                    if (video) video.srcObject = null;
+                    document.getElementById('hardware-camera-placeholder').classList.remove('hidden');
+                }
+            }, 500);
+        } catch (err) {
+            clearInterval(cameraCheckInterval);
+            cameraCheckInterval = null;
+            const name = err && err.name ? err.name : '';
+            let message = 'Camera access failed. Check the webcam and click Retry Camera.';
+            if (name === 'NotAllowedError' || name === 'SecurityError') {
+                message = 'Camera permission was denied. Allow camera access in the browser address bar, then click Retry Camera.';
+            } else if (name === 'NotFoundError' || name === 'OverconstrainedError') {
+                message = 'No webcam was detected on this device. A working camera is required to start this exam.';
+            } else if (name === 'NotReadableError') {
+                message = 'The camera is in use by another application. Close it and click Retry Camera.';
+            }
+            setHardwareStatus(message, 'error');
+        }
+    }
+
+    function continueAfterCameraCheck() {
+        if (!pendingStudentQuiz || !isCameraFeedLive()) return;
+
+        clearInterval(cameraCheckInterval);
+        cameraCheckInterval = null;
+
+        const modal = document.getElementById('modal-hardware-check');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+
+        if (pendingStudentQuiz.isResuming) {
+            startWebQuiz(
+                pendingStudentQuiz.quizTitle,
+                pendingStudentQuiz.timeLimit,
+                pendingStudentQuiz.targetItems,
+                pendingStudentQuiz.tabLimit,
+                pendingStudentQuiz.passingRate,
+                pendingStudentQuiz.idleLimit,
+                pendingStudentQuiz.questionTimeLimit
+            );
+            return;
+        }
+
+        document.getElementById('student-passcode-input').value = '';
+        const passModal = document.getElementById('modal-student-passcode');
+        passModal.classList.remove('hidden');
+        passModal.classList.add('flex');
+        setTimeout(() => document.getElementById('student-passcode-input').focus(), 100);
+    }
+
+    function cancelHardwareCheck() {
+        clearInterval(cameraCheckInterval);
+        cameraCheckInterval = null;
+        const modal = document.getElementById('modal-hardware-check');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        stopCameraStream();
+        pendingStudentQuiz = null;
+        setHardwareStatus('Waiting to request camera access...', 'info');
+    }
+
+    function stopCameraStream() {
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+            cameraStream = null;
+        }
+        const video = document.getElementById('hardware-camera-preview');
+        if (video) video.srcObject = null;
+        stopCameraMonitoring();
+        stopFaceMonitoring();
+        cameraIdleSince = null;
+        cameraIdleReported = false;
+    }
+
+    // BATCH 5: ACTIVE CAMERA MONITORING (tracks feed loss for 10 seconds)
+    function startCameraMonitoring() {
+        stopCameraMonitoring();
+        cameraIdleSince = null;
+        cameraIdleReported = false;
+        if (!cameraStream || !activeQuizRequiresCamera) return;
+
+        cameraMonitorInterval = setInterval(() => {
+            if (activeQuizTitle === "" || faceWarningActive) return;
+
+            if (isCameraFeedLive()) {
+                cameraIdleSince = null;
+                cameraIdleReported = false;
+                return;
+            }
+
+            if (!cameraIdleSince) cameraIdleSince = Date.now();
+            if (!cameraIdleReported && Date.now() - cameraIdleSince >= 10000) {
+                cameraIdleReported = true;
+                handleSecurityViolation("Camera feed inactive for more than 10 seconds");
+            }
+        }, 2000);
+    }
+
+    function stopCameraMonitoring() {
+        clearInterval(cameraMonitorInterval);
+        cameraMonitorInterval = null;
+    }
+
+    // ============================================================================
+    // v2.1.4: TINY FACE DETECTOR PROCTORING LOOP
+    // Runs every 1.5s during a camera-required exam; 2 consecutive misses (~3.0s)
+    // pause the exam until the student acknowledges the blocking warning.
+    // ============================================================================
+    // Silent incident tally for the instructor dashboard. Never submits the exam.
+    async function logIncident(reason = 'Security Violation') {
+        sessionIncidentCount++;
+        const studentId = (loggedInStudent && loggedInStudent.student_id) ? loggedInStudent.student_id : '';
+        const studentName = (loggedInStudent && loggedInStudent.full_name) ? loggedInStudent.full_name : '';
+        const quizName = activeQuizTitle || 'Active Exam';
+        if (!studentId || !quizName) return sessionIncidentCount;
+
+        try {
+            const response = await fetch('/api/log-incident', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    student_id: studentId,
+                    student_name: studentName,
+                    quiz_title: quizName,
+                    reason: reason
+                })
+            });
+            const data = await response.json();
+            if (data && typeof data.incident_count === 'number') {
+                sessionIncidentCount = data.incident_count;
+            }
+        } catch (error) {
+            console.warn('Could not record the incident on the server:', error && error.message ? error.message : error);
+        }
+        return sessionIncidentCount;
+    }
+
+    function setExamFocusBlur(isBlurred) {
+        const card = document.getElementById('quiz-card-container');
+        if (!card) return;
+        if (isBlurred) card.classList.add('exam-focus-lost');
+        else card.classList.remove('exam-focus-lost');
+    }
+
+    // A warning freezes the exam: timers stop, the paper is blurred, nothing submits.
+    function pauseExamTimersForWarning() {
+        pauseExamForFaceWarning();
+        setExamFocusBlur(true);
+    }
+
+    function resumeExamTimersAfterWarning() {
+        setExamFocusBlur(false);
+        if (faceWarningActive) return;
+        resumeExamTimersAfterFace();
+    }
+    function stopFaceMonitoring() {
+        clearInterval(faceMonitorInterval);
+        faceMonitorInterval = null;
+        faceWarningActive = false;
+        faceMonitoringGraceUntil = 0;
+        faceWarningCooldownUntil = 0;
+        missedFaceCount = 0;
+        faceDetectionInFlight = false;
+        setExamFocusBlur(false);
+
+        if (faceDetectionVideo) {
+            try { faceDetectionVideo.pause(); } catch (error) {}
+            faceDetectionVideo.srcObject = null;
+            if (faceDetectionVideo.parentNode) faceDetectionVideo.parentNode.removeChild(faceDetectionVideo);
+            faceDetectionVideo = null;
+        }
+
+        const modal = document.getElementById('modal-face-warning');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+        const btn = document.getElementById('face-warning-btn');
+        if (btn) btn.disabled = false;
+    }
+
+    function getFaceDetectionVideo() {
+        if (!cameraStream) return null;
+
+        if (!faceDetectionVideo) {
+            faceDetectionVideo = document.createElement('video');
+            faceDetectionVideo.muted = true;
+            faceDetectionVideo.autoplay = true;
+            faceDetectionVideo.setAttribute('playsinline', '');
+            faceDetectionVideo.style.cssText = 'position:fixed;left:-10000px;top:0;width:2px;height:2px;opacity:0.01;pointer-events:none;';
+            document.body.appendChild(faceDetectionVideo);
+        }
+
+        if (faceDetectionVideo.srcObject !== cameraStream) {
+            faceDetectionVideo.srcObject = cameraStream;
+            const attempt = faceDetectionVideo.play();
+            if (attempt && attempt.catch) attempt.catch(() => {});
+        }
+        return faceDetectionVideo;
+    }
+
+    function loadFaceModels() {
+        if (faceModelsPromise) return faceModelsPromise;
+
+        faceModelsPromise = (async () => {
+            if (!window.faceapi) throw new Error('face-api.js is not available');
+
+            // Prefer the bundled weights so the proctoring loop also works offline.
+            const modelSources = ['models', 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model'];
+            let lastError = null;
+            for (const source of modelSources) {
+                try {
+                    await faceapi.nets.tinyFaceDetector.loadFromUri(source);
+                    if (faceapi.tf && typeof faceapi.tf.ready === 'function') {
+                        try { await faceapi.tf.ready(); } catch (error) {}
+                    }
+                    return true;
+                } catch (error) {
+                    lastError = error;
+                }
+            }
+            throw lastError || new Error('Could not load the tiny face detector model.');
+        })();
+
+        return faceModelsPromise;
+    }
+
+    function beginFaceMonitoring() {
+        stopFaceMonitoring();
+        if (!activeQuizRequiresCamera || !cameraStream) return;
+
+        // Small grace period so the student can settle into the camera after the
+        // hardware check / PIN screens before the first detection tick.
+        faceMonitoringGraceUntil = Date.now() + 4500;
+        missedFaceCount = 0;
+
+        loadFaceModels()
+            .then(() => {
+                if (activeQuizTitle === "" || !activeQuizRequiresCamera) return;
+                clearInterval(faceMonitorInterval);
+                faceMonitorInterval = setInterval(runFaceDetectionTick, FACE_MONITOR_INTERVAL_MS);
+            })
+            .catch((error) => {
+                console.warn('Face detection unavailable:', error && error.message ? error.message : error);
+            });
+    }
+
+    async function runFaceDetectionTick() {
+        if (!activeQuizRequiresCamera || activeQuizTitle === "" || faceWarningActive) return;
+        if (Date.now() < faceMonitoringGraceUntil || Date.now() < faceWarningCooldownUntil) return;
+        if (!cameraStream || !isCameraFeedLive()) {
+            missedFaceCount = 0;
+            return;
+        }
+        if (!window.faceapi || !faceapi.nets.tinyFaceDetector.isLoaded) return;
+
+        // Do not stack the face warning on top of a security/custom alert modal.
+        const alertModal = document.getElementById('custom-alert-modal');
+        if (alertModal && !alertModal.classList.contains('hidden')) return;
+
+        const video = getFaceDetectionVideo();
+        if (!video || video.readyState < 2 || video.videoWidth === 0) return;
+        if (faceDetectionInFlight) return;
+
+        faceDetectionInFlight = true;
+        try {
+            const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.45 });
+            const detections = await faceapi.detectAllFaces(video, options);
+            if (faceWarningActive) return;
+
+            if (detections.length === 0) {
+                // 2 consecutive misses at 1.5s per tick ≈ 3.0 seconds without a face.
+                missedFaceCount++;
+                if (missedFaceCount >= FACE_MISS_TOLERANCE_TICKS) {
+                    triggerFaceWarning();
+                }
+            } else {
+                missedFaceCount = 0;
+            }
+        } catch (error) {
+            console.warn('Face detection tick failed:', error && error.message ? error.message : error);
+        } finally {
+            faceDetectionInFlight = false;
+        }
+    }
+
+    function triggerFaceWarning() {
+        if (faceWarningActive || activeQuizTitle === "") return;
+
+        faceWarningActive = true;
+        missedFaceCount = 0;
+        pauseExamTimersForWarning();
+        logIncident('Face Not Detected (camera proctoring)');
+
+        const time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const status = document.getElementById('face-warning-status');
+        if (status) {
+            status.innerText = `No face was detected for about 3 seconds (last check at ${time}). The exam timer is paused. Show your full face in the camera, then select OK, Resume.`;
+        }
+
+        const modal = document.getElementById('modal-face-warning');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        const btn = document.getElementById('face-warning-btn');
+        if (btn) btn.focus();
+    }
+
+    function dismissFaceWarning() {
+        const modal = document.getElementById('modal-face-warning');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        faceWarningActive = false;
+        faceWarningCooldownUntil = Date.now() + 4000;
+        resumeExamTimersAfterWarning();
+    }
+
+    async function startWebQuiz(title, timeLimitMinutes, targetItems, tabLimit, passingRate, idleLimit, questionTimeLimit = 0) {
+        activeQuizTitle = title;
+        activeTabLimit = tabLimit;
+        activePassingRate = passingRate;
+        activeIdleTimeLimit = idleLimit;
+        activeQuestionTimeLimit = questionTimeLimit || 0;
+        resizeAutoSubmitTriggered = false;
+        sessionIncidentCount = 0;
+        setExamFocusBlur(false);
+        activeQuizRequiresCamera = !!(pendingStudentQuiz && pendingStudentQuiz.requireCamera);
+
+        // A camera-required pre-flight must not leave the webcam running for a non-camera quiz.
+        if (!activeQuizRequiresCamera) {
+            stopCameraStream();
+        }
+        baselineViewportHeight = window.innerHeight;
+        baselineViewportWidth = window.innerWidth;
+
+        // CRASH RECOVERY LOGIC - LOAD SAVED PROGRESS
+        const savedProgress = localStorage.getItem(`examProgress_${loggedInStudent.student_id}_${title}`);
+        let loadedFromSave = false;
+
+        if (savedProgress) {
+            try {
+                const parsed = JSON.parse(savedProgress);
+                activeQuizQuestions = parsed.questions; 
+                currentQuestionIndex = parsed.index;
+                currentScore = parsed.score;
+                studentAnswerSheet = parsed.answers;
+                cheatWarnings = parsed.warnings || 0;
+                loadedFromSave = true;
+                
+                if (currentQuestionIndex >= activeQuizQuestions.length) {
+                    submitWebExam(true);
+                    return;
+                }
+            } catch(e) {
+                loadedFromSave = false;
+            }
+        }
+
+        // FRESH START - ONLY SHUFFLE IF WE ARE NOT LOADING FROM A SAVE
+        if (!loadedFromSave) {
+            const response = await fetch(`/api/questions?title=${encodeURIComponent(title)}`);
+            let questions = await response.json();
+
+            if (questions.length === 0) {
+                showCustomAlert("Empty Quiz", "This quiz has no questions yet!", "warning");
+                activeQuizTitle = "";
+                activeQuizRequiresCamera = false;
+                stopCameraStream();
+                return;
+            }
+
+            for (let i = questions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [questions[i], questions[j]] = [questions[j], questions[i]];
+            }
+
+            if (questions.length > targetItems) {
+                activeQuizQuestions = questions.slice(0, targetItems);
+            } else {
+                activeQuizQuestions = questions;
+            }
+
+            cheatWarnings = 0; currentQuestionIndex = 0; currentScore = 0; studentAnswerSheet = [];
+            
+            localStorage.setItem(`examProgress_${loggedInStudent.student_id}_${title}`, JSON.stringify({
+                index: 0,
+                score: 0,
+                answers: [],
+                warnings: 0,
+                questions: activeQuizQuestions
+            }));
+        }
+
+        const timerDisplay = document.getElementById('student-timer-display');
+        if (timeLimitMinutes && timeLimitMinutes > 0) {
+            timerDisplay.classList.remove('hidden');
+            startStudentTimer(timeLimitMinutes);
+        } else {
+            timerDisplay.classList.add('hidden'); 
+        }
+
+        enterFullscreen();
+
+        document.getElementById('web-view-dashboard').classList.add('hidden');
+        document.getElementById('web-view-dashboard').classList.remove('flex');
+        document.getElementById('web-take-quiz').classList.remove('hidden');
+        document.getElementById('web-take-quiz').classList.add('flex');
+        document.getElementById('web-quiz-title').innerText = title;
+
+        showDynamicWatermark();
+        startCameraMonitoring();
+        beginFaceMonitoring();
+        renderWebQuestion();
+        resetIdleTimer(); 
+    }
+
+    function formatMainSeconds(totalSeconds) {
+        const safe = Math.max(0, totalSeconds);
+        const m = Math.floor(safe / 60);
+        const s = safe % 60;
+        return `${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
+    }
+
+    function startStudentTimer(minutes) {
+        studentSecondsRemaining = Math.max(0, Math.round(minutes * 60));
+        studentTimerPaused = false;
+
+        const timerText = document.getElementById('student-time-remaining');
+        const timerContainer = document.getElementById('student-timer-display');
+        const icon = timerContainer.querySelector('i');
+        
+        clearInterval(studentTimerInterval); 
+        
+        timerContainer.classList.remove('bg-green-100', 'text-green-700', 'border-green-200');
+        timerContainer.classList.add('bg-red-100', 'text-red-700', 'border-red-200');
+        icon.classList.remove('fa-beat-fade');
+        timerText.innerText = formatMainSeconds(studentSecondsRemaining);
+
+        studentTimerInterval = setInterval(() => {
+            // Face-proctoring pause: keep every counter frozen until the student resumes.
+            if (studentTimerPaused) return;
+
+            studentSecondsRemaining--;
+            timerText.innerText = formatMainSeconds(studentSecondsRemaining);
+            
+            if (studentSecondsRemaining <= 15 && studentSecondsRemaining > 0) {
+                icon.classList.add('fa-beat-fade'); 
+                if (studentSecondsRemaining % 2 === 0) {
+                    timerContainer.classList.remove('bg-red-100', 'text-red-700', 'border-red-200');
+                    timerContainer.classList.add('bg-green-100', 'text-green-700', 'border-green-200');
+                } else {
+                    timerContainer.classList.remove('bg-green-100', 'text-green-700', 'border-green-200');
+                    timerContainer.classList.add('bg-red-100', 'text-red-700', 'border-red-200');
+                }
+            }
+            
+            if (studentSecondsRemaining <= 0) {
+                clearInterval(studentTimerInterval);
+                submitWebExam(true); 
+            }
+        }, 1000);
+    }
+
+    function pauseExamForFaceWarning() {
+        studentTimerPaused = true;
+        questionTimerPaused = true;
+        clearTimeout(idleTimer);
+    }
+
+    function resumeExamTimersAfterFace() {
+        if (activeQuizTitle === "") return;
+        studentTimerPaused = false;
+        questionTimerPaused = false;
+        resetIdleTimer();
+    }
+
+    // BATCH 4: PER-QUESTION TIMER (auto-advances when it reaches zero)
+    function formatQuestionSeconds(totalSeconds) {
+        const m = Math.floor(totalSeconds / 60);
+        const s = totalSeconds % 60;
+        return `${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
+    }
+
+    function stopQuestionTimer() {
+        clearInterval(questionTimerInterval);
+        questionTimerInterval = null;
+        questionTimerPaused = false;
+        questionSecondsRemaining = 0;
+        const badge = document.getElementById('student-question-timer');
+        if (badge) {
+            badge.classList.add('hidden');
+            badge.classList.remove('inline-flex');
+        }
+    }
+
+    function startQuestionTimer() {
+        stopQuestionTimer();
+        const badge = document.getElementById('student-question-timer');
+        const text = document.getElementById('student-question-time-remaining');
+        if (!badge || !text || activeQuizTitle === "") return;
+        if (!(activeQuestionTimeLimit > 0)) return;
+        if (currentQuestionIndex >= activeQuizQuestions.length) return;
+
+        questionSecondsRemaining = activeQuestionTimeLimit;
+        questionTimerPaused = false;
+        badge.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'border-red-200');
+        badge.classList.add('inline-flex', 'bg-amber-100', 'text-amber-700', 'border-amber-200');
+        text.innerText = formatQuestionSeconds(questionSecondsRemaining);
+
+        questionTimerInterval = setInterval(() => {
+            if (questionTimerPaused) return;
+
+            questionSecondsRemaining--;
+            if (questionSecondsRemaining < 0) questionSecondsRemaining = 0;
+            text.innerText = formatQuestionSeconds(questionSecondsRemaining);
+
+            if (questionSecondsRemaining <= 5) {
+                badge.classList.remove('bg-amber-100', 'text-amber-700', 'border-amber-200');
+                badge.classList.add('bg-red-100', 'text-red-700', 'border-red-200');
+            }
+
+            if (questionSecondsRemaining <= 0) {
+                clearInterval(questionTimerInterval);
+                questionTimerInterval = null;
+                processNextQuestion();
+            }
+        }, 1000);
+    }
+
+    // ==============================================
+    // UNIVERSAL QUESTION RENDERER
+    // ==============================================
+    function renderWebQuestion() {
+        const qData = activeQuizQuestions[currentQuestionIndex];
+        const qType = qData.question_type || 'mcq';
+        currentSelectedAnswer = null; 
+        
+        document.getElementById('web-question-count').innerText = `Question ${currentQuestionIndex + 1} of ${activeQuizQuestions.length}`;
+        startQuestionTimer();
+        document.getElementById('web-question-text').innerText = decodeEntities(qData.question_text);
+        
+        const container = document.getElementById('web-options-container');
+        container.innerHTML = '';
+        
+        const nextBtn = document.getElementById('web-btn-next');
+        nextBtn.innerText = currentQuestionIndex === activeQuizQuestions.length - 1 ? "Submit Exam" : "Next Question";
+        nextBtn.classList.add('hidden'); 
+
+        const cardContainer = document.getElementById('quiz-card-container');
+
+        if (qType === 'mcq') {
+            cardContainer.classList.replace('max-w-5xl', 'max-w-3xl'); 
+            const allRawOptions = [
+                { letter: 'A', text: decodeEntities(qData.option_a).trim() },
+                { letter: 'B', text: decodeEntities(qData.option_b).trim() },
+                { letter: 'C', text: decodeEntities(qData.option_c).trim() },
+                { letter: 'D', text: decodeEntities(qData.option_d).trim() }
+            ];
+
+            const correctObj = allRawOptions.find(o => o.letter === qData.correct_answer);
+            qData.actual_correct_text = correctObj ? correctObj.text : allRawOptions[0].text;
+
+            // Keep only non-empty choices so blank options never render empty buttons
+            let options = allRawOptions.filter(o => o.text !== '');
+            
+            for (let i = options.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [options[i], options[j]] = [options[j], options[i]];
+            }
+
+            const displayLetters = ['A', 'B', 'C', 'D'];
+            container.innerHTML = options.map((opt, idx) => `
+                <button onclick="selectWebAnswer(this)" data-value="${escapeHtml(opt.text)}" class="w-full text-left p-3 sm:p-4 rounded-lg border border-slate-200 font-medium text-sm sm:text-base text-slate-700 hover:bg-blue-50 transition-colors">${displayLetters[idx]}) ${escapeHtml(opt.text)}</button>
+            `).join('');
+        } 
+        else if (qType === 'tf') {
+            cardContainer.classList.replace('max-w-5xl', 'max-w-3xl');
+            qData.actual_correct_text = qData.correct_answer === 'A' ? 'True' : 'False';
+            container.innerHTML = `
+                <button onclick="selectWebAnswer(this)" data-value="True" class="w-full text-left p-3 sm:p-4 rounded-lg border border-slate-200 font-medium text-sm sm:text-base text-slate-700 hover:bg-blue-50 transition-colors">True</button>
+                <button onclick="selectWebAnswer(this)" data-value="False" class="w-full text-left p-3 sm:p-4 rounded-lg border border-slate-200 font-medium text-sm sm:text-base text-slate-700 hover:bg-blue-50 transition-colors">False</button>
+            `;
+        }
+        else if (qType === 'ident') {
+            cardContainer.classList.replace('max-w-5xl', 'max-w-3xl');
+            qData.actual_correct_text = decodeEntities(qData.correct_answer);
+            container.innerHTML = `
+                <input type="text" id="ident-answer" autocomplete="off" autocorrect="off" spellcheck="false" class="w-full p-4 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none font-medium text-slate-700 text-lg" placeholder="Type your answer here...">
+            `;
+            nextBtn.classList.remove('hidden'); 
+        }
+        else if (qType === 'match') {
+            cardContainer.classList.replace('max-w-3xl', 'max-w-5xl'); 
+            
+            let pairs = [];
+            try {
+                let parsed = typeof qData.extended_data === 'string' ? JSON.parse(qData.extended_data) : qData.extended_data;
+                if (typeof parsed === 'string') parsed = JSON.parse(parsed); 
+                pairs = Array.isArray(parsed) ? parsed : [];
+            } catch(e) {
+                console.error("Failed to extract matching pairs:", e);
+            }
+
+            if (pairs.length === 0) {
+                container.innerHTML = `<p class="text-red-500 font-bold p-4 bg-red-50 rounded-lg border border-red-200"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Error: The matching items for this question failed to load. Please skip this question or notify your instructor.</p>`;
+                nextBtn.classList.remove('hidden');
+                return;
+            }
+
+            qData.actual_correct_text = JSON.stringify(pairs.map(p => decodeEntities(p.a))); 
+            
+            let answers = pairs.map(p => decodeEntities(p.a));
+            for (let i = answers.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [answers[i], answers[j]] = [answers[j], answers[i]];
+            }
+            
+            let matchHtml = '<div class="space-y-3">';
+            pairs.forEach((pair) => {
+                let optionsHtml = `<option value="" disabled selected>Select match...</option>`;
+                answers.forEach(a => { optionsHtml += `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`; });
+                matchHtml += `
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+                        <div class="font-bold text-slate-700 sm:w-1/2">${escapeHtml(pair.p)}</div>
+                        <select class="match-select sm:w-1/2 p-3 border border-slate-300 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 bg-white font-medium text-slate-700">
+                            ${optionsHtml}
+                        </select>
+                    </div>
+                `;
+            });
+            matchHtml += '</div>';
+            container.innerHTML = matchHtml;
+            nextBtn.classList.remove('hidden');
+        }
+    }
+
+    function selectWebAnswer(btn) {
+        currentSelectedAnswer = btn.getAttribute('data-value');
+        document.querySelectorAll('#web-options-container button').forEach(b => {
+            b.className = "w-full text-left p-3 sm:p-4 rounded-lg border border-slate-200 font-medium text-sm sm:text-base text-slate-700 hover:bg-blue-50 transition-colors";
+        });
+        btn.className = "w-full text-left p-3 sm:p-4 rounded-lg border border-blue-500 bg-blue-50 text-blue-800 font-bold ring-2 ring-blue-200 text-sm sm:text-base";
+        document.getElementById('web-btn-next').classList.remove('hidden');
+    }
+
+    function gradeCurrentQuestion() {
+        const qData = activeQuizQuestions[currentQuestionIndex];
+        const qType = qData.question_type || 'mcq';
+        let isCorrect = false;
+        let recordedAnswer = currentSelectedAnswer || "No Answer";
+        let expectedAnswer = qData.actual_correct_text;
+
+        if (qType === 'mcq' || qType === 'tf') {
+            isCorrect = (currentSelectedAnswer === qData.actual_correct_text);
+        } 
+        else if (qType === 'ident') {
+            const identVal = document.getElementById('ident-answer') ? document.getElementById('ident-answer').value.trim() : "";
+            recordedAnswer = identVal || "No Answer";
+            isCorrect = (identVal.toLowerCase() === qData.actual_correct_text.toLowerCase()); 
+        } 
+        else if (qType === 'match') {
+            const selects = document.querySelectorAll('.match-select');
+            let answers = [];
+            selects.forEach(s => answers.push(s.value));
+            recordedAnswer = answers.length > 0 ? JSON.stringify(answers) : "No Answer";
+            isCorrect = (recordedAnswer === qData.actual_correct_text);
+        } 
+
+        return { recordedAnswer, expectedAnswer, isCorrect, questionText: decodeEntities(qData.question_text) };
+    }
+
+    function processNextQuestion() {
+        const grade = gradeCurrentQuestion();
+        studentAnswerSheet.push({
+            question: grade.questionText,
+            selected: grade.recordedAnswer,
+            correct: grade.expectedAnswer
+        });
+
+        if (grade.isCorrect) currentScore++;
+        
+        // --- INSTANT AUTO-SAVE FOR CRASH RECOVERY ---
+        localStorage.setItem(`examProgress_${loggedInStudent.student_id}_${activeQuizTitle}`, JSON.stringify({
+            index: currentQuestionIndex + 1,
+            score: currentScore,
+            answers: studentAnswerSheet,
+            warnings: cheatWarnings,
+            questions: activeQuizQuestions
+        }));
+        
+        currentQuestionIndex++;
+        if (currentQuestionIndex < activeQuizQuestions.length) renderWebQuestion();
+        else submitWebExam(false);
+    }
+
+    function nextWebQuestion() {
+        processNextQuestion(); 
+    }
+
+    // ============================================================================
+    // v2.1.4: SUBMISSION NETWORK DROP PROTECTION
+    // A finished exam is never thrown away because Wi-Fi blipped. The answer sheet
+    // and remaining time are persisted locally and the student gets a blocking
+    // retry dialog until the result reaches the instructor's server.
+    // ============================================================================
+    function pendingSubmissionKey(studentId, quizTitle) {
+        return `pendingSubmission_${studentId}_${quizTitle}`;
+    }
+
+    function persistPendingSubmission(submission) {
+        try {
+            localStorage.setItem(pendingSubmissionKey(submission.payload.student_id, submission.payload.quiz_title), JSON.stringify(submission));
+            // Keep the crash-recovery save in sync: a reload offers the finished exam
+            // again instead of dropping the answers that are waiting to be sent.
+            localStorage.setItem(`examProgress_${submission.payload.student_id}_${submission.payload.quiz_title}`, JSON.stringify({
+                index: activeQuizQuestions.length,
+                score: currentScore,
+                answers: studentAnswerSheet,
+                warnings: cheatWarnings,
+                questions: activeQuizQuestions
+            }));
+        } catch (error) {
+            console.warn('Could not save the exam submission locally:', error);
+        }
+    }
+
+    function clearPendingSubmission() {
+        if (!pendingSubmission) return;
+        const studentId = pendingSubmission.payload.student_id;
+        const quizTitle = pendingSubmission.payload.quiz_title;
+        try {
+            localStorage.removeItem(pendingSubmissionKey(studentId, quizTitle));
+            localStorage.removeItem(`examProgress_${studentId}_${quizTitle}`);
+        } catch (error) {}
+        pendingSubmission = null;
+    }
+
+    // Returns 'ok' (stored), 'rejected' (server answered but refused) or 'offline'.
+    async function deliverExamSubmission(submission) {
+        try {
+            const response = await fetch('/api/submit-result', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(submission.payload)
+            });
+            if (!response.ok) throw new Error(`Submission failed with status ${response.status}`);
+
+            let data = null;
+            try { data = await response.json(); } catch (error) {}
+            if (data && data.success === false) {
+                return { status: 'rejected', message: data.message || 'The exam server refused this submission.' };
+            }
+            return { status: 'ok' };
+        } catch (error) {
+            return { status: 'offline' };
+        }
+    }
+
+    function showSubmissionNetworkWarning(submission) {
+        const modal = document.getElementById('modal-network-retry');
+        const statusEl = document.getElementById('network-retry-status');
+        const savedEl = document.getElementById('network-retry-saved');
+        const btn = document.getElementById('network-retry-btn');
+
+        if (statusEl) statusEl.innerText = 'Network disconnected. Your answers are saved locally. Please reconnect to Wi-Fi and click Retry.';
+        if (savedEl) {
+            const savedTime = new Date(submission.savedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            const answerCount = (submission.payload.student_answers || []).length;
+            savedEl.innerText = `${submission.payload.quiz_title}\n${answerCount} answers saved on ${savedTime} with ${formatMainSeconds(submission.remainingSeconds)} left on the clock.`;
+        }
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-rotate-right mr-2"></i> Retry Submission';
+        }
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+    }
+
+    function hideSubmissionNetworkWarning() {
+        const modal = document.getElementById('modal-network-retry');
+        if (!modal) return;
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    async function retryExamSubmission() {
+        if (!pendingSubmission) return;
+
+        const btn = document.getElementById('network-retry-btn');
+        const statusEl = document.getElementById('network-retry-status');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Retrying...';
+        }
+        if (statusEl) statusEl.innerText = 'Reconnecting to the exam server...';
+
+        const submission = pendingSubmission;
+        const result = await deliverExamSubmission(submission);
+
+        if (result.status === 'ok') {
+            clearPendingSubmission();
+            hideSubmissionNetworkWarning();
+            finishExamSubmission(submission);
+            return;
+        }
+
+        if (result.status === 'rejected') {
+            clearPendingSubmission();
+            hideSubmissionNetworkWarning();
+            exitExamFullscreen();
+            activeQuizTitle = "";
+            activeQuizRequiresCamera = false;
+            showCustomAlert("Submission Rejected", result.message, "error", showExamDashboard);
+            return;
+        }
+
+        // Still offline: keep the save untouched and let the student try again.
+        showSubmissionNetworkWarning(submission);
+        if (statusEl) statusEl.innerText = 'Still offline. Reconnect to Wi-Fi and click Retry again. Your answers stay saved on this device.';
+    }
+
+    function exitExamFullscreen() {
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+            if (document.exitFullscreen) { document.exitFullscreen().catch(() => {}); }
+            else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
+        }
+    }
+
+    function showExamDashboard() {
+        document.getElementById('web-take-quiz').classList.add('hidden');
+        document.getElementById('web-take-quiz').classList.remove('flex');
+        document.getElementById('web-view-dashboard').classList.remove('hidden');
+        document.getElementById('web-view-dashboard').classList.add('flex');
+        loadQuizzes();
+    }
+
+    function finishExamSubmission(submission) {
+        const { payload, isAutoSubmit, status, passingScore, totalItems } = submission;
+        activeQuizTitle = "";
+        activeQuizRequiresCamera = false;
+        exitExamFullscreen();
+
+        const modalType = status === 'Passed' ? 'success' : 'error';
+        const title = isAutoSubmit ? "Exam Terminated" : "Exam Complete!";
+        const lead = isAutoSubmit
+            ? "Your exam was automatically submitted."
+            : "You have successfully submitted the exam.";
+        const message = `${lead}\n\nYou scored ${payload.score} out of ${totalItems}.\nRequired to Pass: ${passingScore}\nStatus: ${status}`;
+        showCustomAlert(title, message, modalType, showExamDashboard);
+    }
+
+    async function submitWebExam(isAutoSubmit = false) {
+        // One submission at a time: anti-cheat events or a second Timer expiry must
+        // never create a duplicate result or overwrite a held submission.
+        if (submissionInFlight || pendingSubmission) return;
+
+        clearInterval(studentTimerInterval); 
+        clearTimeout(idleTimer);
+        stopQuestionTimer();
+        hideDynamicWatermark();
+        stopCameraStream();
+        studentTimerPaused = false;
+        questionTimerPaused = false;
+        activeQuizRequiresCamera = false;
+
+        if (studentAnswerSheet.length === currentQuestionIndex && currentQuestionIndex < activeQuizQuestions.length) {
+            const grade = gradeCurrentQuestion();
+            studentAnswerSheet.push({
+                question: grade.questionText,
+                selected: grade.recordedAnswer,
+                correct: grade.expectedAnswer
+            });
+            if (isAutoSubmit && grade.isCorrect) currentScore++;
+        }
+
+        const totalItems = activeQuizQuestions.length;
+        const passingScore = Math.ceil(totalItems * (activePassingRate / 100)); 
+        const status = currentScore >= passingScore ? 'Passed' : 'Failed';
+        const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+        const submission = {
+            payload: {
+                student_name: loggedInStudent.full_name,
+                student_id: loggedInStudent.student_id,
+                quiz_title: activeQuizTitle,
+                score: currentScore,
+                total_items: totalItems,
+                status: status,
+                date_completed: today,
+                student_answers: studentAnswerSheet
+            },
+            isAutoSubmit: isAutoSubmit,
+            status: status,
+            passingScore: passingScore,
+            totalItems: totalItems,
+            remainingSeconds: Math.max(0, studentSecondsRemaining),
+            savedAt: Date.now()
+        };
+
+        pendingSubmission = submission;
+        submissionInFlight = true;
+        const result = await deliverExamSubmission(submission);
+        submissionInFlight = false;
+
+        if (result.status === 'ok') {
+            clearPendingSubmission();
+            finishExamSubmission(submission);
+            return;
+        }
+
+        if (result.status === 'rejected') {
+            clearPendingSubmission();
+            exitExamFullscreen();
+            activeQuizTitle = "";
+            activeQuizRequiresCamera = false;
+            showCustomAlert("Submission Rejected", result.message, "error", showExamDashboard);
+            return;
+        }
+
+        // Network drop: answers + remaining time are stored, exam stays on screen
+        // behind the retry dialog until the result is delivered.
+        persistPendingSubmission(submission);
+        showSubmissionNetworkWarning(submission);
+    }
+
+    // ============================================================================
+    // STEP A: 4-PART ANDROID & MOBILE ANTI-CHEAT SHIELD
+    // ============================================================================
+    function handleSecurityViolation(reason) {
+        if (activeQuizTitle === "") return;
+        // A held submission is already finished: fixing the Wi-Fi must not count as
+        // a tab switch or inactivity strike while the retry dialog is waiting.
+        if (submissionInFlight || pendingSubmission) return;
+
+        // 2-second cooldown so simultaneous blur + visibilitychange count as 1 strike
+        const now = Date.now();
+        if (now - lastViolationTime < 2000) return;
+        lastViolationTime = now;
+        
+        cheatWarnings++;
+        logIncident(reason);
+
+        // v2.1.4: a warning freezes the exam (timer paused, paper blurred) and is
+        // recorded for the instructor. It never auto-submits the exam.
+        pauseExamTimersForWarning();
+
+        localStorage.setItem(`examProgress_${loggedInStudent.student_id}_${activeQuizTitle}`, JSON.stringify({
+            index: currentQuestionIndex,
+            score: currentScore,
+            answers: studentAnswerSheet,
+            warnings: cheatWarnings,
+            questions: activeQuizQuestions
+        }));
+
+        const isFocusLoss = /focus lost|switched tabs|minimized|fullscreen|floating overlay/i.test(reason);
+        const title = isFocusLoss ? "WINDOW FOCUS LOST" : "SECURITY WARNING";
+        const message = isFocusLoss
+            ? "Window focus lost. Please stay on the exam page.\n\nYour timer is paused and this incident has been recorded for your instructor."
+            : `Violation Detected: ${reason}\n\nThis incident has been recorded and reported to your instructor. Your timer is paused until you acknowledge this notice.`;
+
+        showCustomAlert(title, message, "warning", () => {
+            enterFullscreen();
+            resumeExamTimersAfterWarning();
+            resetIdleTimer();
+        });
+    }
+
+    // 1. Clipboard, Context Menu & Text Selection Lockdown (Stops copying into Meta AI)
+    ['copy', 'cut', 'paste', 'contextmenu', 'selectstart', 'dragstart'].forEach(evt => {
+        document.addEventListener(evt, (e) => {
+            const tag = e.target && e.target.tagName;
+            if ((evt === 'paste') && (tag === 'INPUT' || tag === 'TEXTAREA')) {
+                e.preventDefault();
+                if (activeQuizTitle !== "") handleSecurityViolation("Clipboard Paste Attempt Blocked");
+                return;
+            }
+            if (tag !== 'INPUT' && tag !== 'TEXTAREA') {
+                e.preventDefault();
+            }
+        }, { capture: true });
+    });
+
+    // 2. Window Blur Trap (Catches Messenger Chat Bubbles, Edge Panels, Circle to Search)
+    let blurTimeout = null;
+    window.addEventListener('blur', () => {
+        if (activeQuizTitle !== "") {
+            blurTimeout = setTimeout(() => {
+                if (activeQuizTitle !== "" && !document.hasFocus()) {
+                    handleSecurityViolation("Chat Bubble / Floating Overlay / Focus Lost");
+                }
+            }, 1200);
+        }
+    });
+
+    window.addEventListener('focus', () => {
+        if (blurTimeout) {
+            clearTimeout(blurTimeout);
+            blurTimeout = null;
+        }
+    });
+
+    // 3. Tab Switch & Fullscreen Exit Traps
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden && activeQuizTitle !== "") {
+            handleSecurityViolation("Switched Tabs or Minimized Browser");
+        }
+    });
+
+    document.addEventListener("fullscreenchange", () => {
+        if (!document.fullscreenElement && activeQuizTitle !== "") {
+            handleSecurityViolation("Opened Floating Window or Exited Fullscreen");
+        }
+    });
+
+    document.addEventListener("webkitfullscreenchange", () => {
+        if (!document.webkitFullscreenElement && activeQuizTitle !== "") {
+            handleSecurityViolation("Opened Floating Window or Exited Fullscreen");
+        }
+    });
+
+    // 4. Split-Screen & Multi-Window Viewport Shrink Trap -> AUTO-SUBMIT
+    function triggerResizeAutoSubmit() {
+        if (activeQuizTitle === "" || resizeAutoSubmitTriggered) return;
+        resizeAutoSubmitTriggered = true;
+        reportCheatAttempt("Split-Screen / Resized Viewport - Auto-Submitted");
+        showCustomAlert("SECURITY VIOLATION", "A screen resize or split-screen was detected.\n\nYour exam has been automatically submitted and this incident has been reported to your instructor.", "error", () => {
+            submitWebExam(true);
+        });
+    }
+
+    window.addEventListener('resize', () => {
+        if (activeQuizTitle === "") return;
+        const activeEl = document.activeElement;
+        const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
+
+        const heightRatio = window.innerHeight / (baselineViewportHeight || window.screen.height);
+        const widthRatio = window.innerWidth / (baselineViewportWidth || window.screen.width);
+
+        // Width shrink is never caused by a mobile keyboard, so it auto-submits even while typing.
+        // Height shrink is ignored while typing so the on-screen keyboard cannot false-trigger.
+        if (widthRatio < 0.72 || (!isTyping && heightRatio < 0.72)) {
+            triggerResizeAutoSubmit();
+        }
+    });
+
+    // 5. Touch & Pointer Inactivity Watchdog
+    let idleTimer;
+    let activeIdleTimeLimit = 20;
+
+    function resetIdleTimer() {
+        clearTimeout(idleTimer);
+        // The face-warning modal is a legitimate pause, so it must not decay into
+        // an inactivity/anti-cheat violation while the student is blocked.
+        if (faceWarningActive) return;
+        if (activeQuizTitle !== "" && activeIdleTimeLimit > 0) {
+            idleTimer = setTimeout(() => {
+                handleSecurityViolation(`Inactivity limit reached (${activeIdleTimeLimit} seconds) - Possible Smart Panel Usage`);
+            }, activeIdleTimeLimit * 1000);
+        }
+    }
+
+    ['touchstart', 'touchmove', 'mousemove', 'keydown', 'scroll', 'click'].forEach(evt => {
+        window.addEventListener(evt, resetIdleTimer, true);
+    });
+
+    async function reportCheatAttempt(reason = "Security Violation") {
+        // Single counting path: every violation increments the instructor's tally.
+        return logIncident(reason);
+    }
+
+</script>
+</body>
+</html>

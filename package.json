@@ -1,0 +1,54 @@
+{
+  "name": "offline-exam-system",
+  "version": "2.1.4",
+  "description": "Local Network Exam System",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --publish never",
+    "release": "electron-builder --publish always"
+  },
+  "build": {
+    "appId": "com.offlineexamsystem.app",
+    "productName": "Offline Exam System",
+    "asar": false,
+    "extraResources": [
+      "database.sqlite",
+      "cloudflared.exe"
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "chrisanthonyc85-lab",
+        "repo": "offline-exam-system"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "Logo.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false
+    }
+  },
+  "author": "ACA",
+  "license": "ISC",
+  "dependencies": {
+    "electron-updater": "^6.8.11",
+    "express": "^4.19.0",
+    "jszip": "^3.10.2",
+    "mammoth": "^1.13.0",
+    "sqlite3": "^6.0.1",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.0"
+  },
+  "allowScripts": {
+    "electron@30.5.1": true,
+    "sqlite3@6.0.1": true
+  }
+}
